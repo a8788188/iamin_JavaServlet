@@ -1,22 +1,71 @@
 package com.controller;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.List;
+
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.dao.HomedataDao;
+import com.dao.implemen.HomedataDaoImp;
+import com.data.Homedata;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonObject;
+
+
 @WebServlet("/Home")
 public class Home extends HttpServlet {
 	private static final long serialVersionUID = 1L;
-
+	HomedataDao homedataDao = null;
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		System.out.println("Do it1111");
+	
 	}
 
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-	System.out.println("Do it2222");
-	}
+		
+		 System.out.println("Home doPost - Start");
+	        request.setCharacterEncoding("UTF-8");
+	        response.setContentType("application/json; charset=UTF-8");
+	        Gson gson = new Gson();
+	        
+	        if (homedataDao == null) {
+	        	homedataDao = new HomedataDaoImp();
+			}
+	        
+	     // 以列為單位讀入 (純文字)
+	        BufferedReader br = request.getReader();
+	        StringBuilder requstStr = new StringBuilder();
+	        String line = null;
+	        while ((line = br.readLine()) != null) {
+	            requstStr.append(line);	
+	        }
+	        // Gson
+	        JsonObject jsonObject = gson.fromJson(requstStr.toString(), JsonObject.class);
+	        // action
+	        String action = jsonObject.get("action").getAsString();
+	        System.out.println("action---: " + action);
+	        
+	        switch (action) {
+	        case "getAllHomeData":
+	        	List<Homedata> groups_buyer = homedataDao.selectAllgroyp();
+	        	Gson gson2 = new GsonBuilder().setDateFormat("MMM d, yyyy h:mm:ss a").create();
+	        	writeText(response, gson2.toJson(groups_buyer));
+	        	break;
+	        default:
+	            break;
+	        }
+		}
+	
+	private void writeText(HttpServletResponse response, String outText) throws IOException {
+        PrintWriter out = response.getWriter();
+        out.print(outText);
+        System.out.println("output: " + outText);
+    }
 
 }

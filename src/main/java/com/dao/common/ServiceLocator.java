@@ -6,7 +6,7 @@ import javax.naming.NamingException;
 import javax.sql.DataSource;
 
 public class ServiceLocator {
-	private Context initalContext;
+    private Context initalContext;
 
     private static ServiceLocator serviceLocator = new ServiceLocator();
 
@@ -32,8 +32,7 @@ public class ServiceLocator {
     public DataSource getDataSource() {
         DataSource dataSource = null;
         try {
-            Context ctx = (Context) initalContext.lookup("java:comp/env");
-            dataSource = (DataSource) ctx.lookup("jdbc/plus_one");
+            dataSource = (DataSource) initalContext.lookup("java:comp/env/jdbc/plus_one");
         } catch (NamingException e) {
             e.printStackTrace();
         }

@@ -13,6 +13,7 @@
     -->
     <!-- 如果執行產生"Public key retrieval is not allowed" 要將連線url的useSSL改為true -->
     <Resource name="jdbc/plus_one" 
+    	global="jdbc/plus_one"
         auth="Container"
         type="javax.sql.DataSource" 
         driverClassName="com.mysql.cj.jdbc.Driver"
