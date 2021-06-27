@@ -6,5 +6,7 @@ import com.data.Homedata;
 
 public interface HomedataDao {
 	
-	List<Homedata> selectAllgroyp();
+	List<Homedata> selectAllgroup();
+	
+	List<Homedata> selectAllgroupPrice(int GroupID);
 }

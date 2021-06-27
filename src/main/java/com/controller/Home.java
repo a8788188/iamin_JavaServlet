@@ -53,10 +53,14 @@ public class Home extends HttpServlet {
 	        
 	        switch (action) {
 	        case "getAllHomeData":
-	        	List<Homedata> groups_buyer = homedataDao.selectAllgroyp();
+	        	List<Homedata> Home_Group = homedataDao.selectAllgroup();
 	        	Gson gson2 = new GsonBuilder().setDateFormat("MMM d, yyyy h:mm:ss a").create();
-	        	writeText(response, gson2.toJson(groups_buyer));
+	        	writeText(response, gson2.toJson(Home_Group));
 	        	break;
+	        case "getAllGroupPrice":
+	        	int GroupId = jsonObject.get("groupID").getAsInt();
+	        	List<Homedata> Home_Group_Price = homedataDao.selectAllgroupPrice(GroupId);
+	        	writeText(response, gson.toJson(Home_Group_Price));
 	        default:
 	            break;
 	        }
