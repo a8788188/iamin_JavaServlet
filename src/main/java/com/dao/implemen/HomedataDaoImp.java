@@ -27,11 +27,7 @@ public class HomedataDaoImp implements HomedataDao {
 	@Override
 	public List<Homedata> selectAllgroup() {
 		String sql = "select \n" + 
-				"	 g1.GROUP_ID,\n" + 
-				"    g1.NAME,\n" + 
-				"    g1.PROGRESS,\n" + 
-				"    g1.GOAL,\n" + 
-				"    g1.CONDITION_TIME\n" + 
+				"	 g1.GROUP_ID,g1.NAME,g1.PROGRESS,g1.GOAL,g1.GROUP_CATEGORY_ID,g1.CONDITION_TIME\n" + 
 				"from plus_one.group g1\n" + 
 				"group by GROUP_ID;";
 		List<Homedata> homedataList = new ArrayList<>();
@@ -47,7 +43,8 @@ public class HomedataDaoImp implements HomedataDao {
             			 rs.getString(2),
             			 rs.getInt(3),
             			 rs.getInt(4),
-            			 rs.getTimestamp(5));
+            			 rs.getInt(5),
+            			 rs.getTimestamp(6));
 				homedataList.add(homedata);
 			}
          }catch (SQLException e) {
