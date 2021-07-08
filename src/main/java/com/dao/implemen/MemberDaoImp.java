@@ -150,9 +150,7 @@ public class MemberDaoImp implements MemberDao {
 				PreparedStatement pstmt = conn.prepareStatement(sql);) {
 			pstmt.setInt(1, id);
 			try (ResultSet rs = pstmt.executeQuery()) {
-				if (table.equals("MEMBER")) {
 					if (rs.next()) {
-						
 						member.setuUId((rs.getString("UUID")));
 						member.setEmail(rs.getString("Email"));
 						member.setRating(rs.getDouble("RATING"));
@@ -162,19 +160,7 @@ public class MemberDaoImp implements MemberDao {
 						member.setFollow_count(rs.getInt("FOLLOW_COUNT"));
 						member.setStartTime(rs.getTimestamp("START_TIME"));
 						member.setUpdateDate(rs.getTimestamp("UPDATE_TIME"));
-						
-//						int follow_count = rs.getInt("FOLLOW_COUNT");
-//						double rating = rs.getDouble("RATING");
-//						String uUId = rs.getString("uUId");
-//						String email = rs.getString("EMAIL");
-//						String password = rs.getString("PASSWORD");
-//						String nickname = rs.getString("NICKNAME");
-//						String phoneNumber = rs.getString("PHONE");
-//						
-//						member = new Member(id, follow_count, rating, uUId, email, password, nickname, phoneNumber);
-//						return member;
 					}
-
 					JsonObject jsonObject = new JsonObject();
 					jsonObject.addProperty("MEMBER_ID", id);
 					jsonObject.addProperty("EMAIL", member.getEmail());
@@ -191,25 +177,12 @@ public class MemberDaoImp implements MemberDao {
 					} else {
 						jsonObject.addProperty("PHONE", "");
 					}
-					
+					jsonObject.addProperty("UPDATE_TIME", member.getUpdateDate().toString());
 					return jsonObject.toString();
-				}
-				if (table.equals("FAVORITE")) {
-					List<JsonObject> followList = new ArrayList<>();
-					JsonObject follow_member = new JsonObject();
-					while(rs.next()) {
-						String follow = findById(rs.getInt("MEMBER_ID_2"), "MEMBER");
-						follow_member = new Gson().fromJson(follow, JsonObject.class);
-						followList.add(follow_member);
-					}
-					return new Gson().toJson(followList);
-				}
-				
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-
 		return "error";
 	}
 
@@ -224,46 +197,152 @@ public class MemberDaoImp implements MemberDao {
 	@Override
 	public void follow(int member_id, int member_id_2) {
 		String sql = "select count(*) from FAVORITE where MEMBER_ID = ? and MEMBER_ID_2 = ?";
-		try (Connection conn = dataSource.getConnection(); 
-				PreparedStatement pstmt = conn.prepareStatement(sql);){
+		try (Connection conn = dataSource.getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql);) {
 			pstmt.setInt(1, member_id);
 			pstmt.setInt(2, member_id_2);
 			ResultSet rs = pstmt.executeQuery();
-			int  number = 0;
-			while(rs.next()) {
+			int number = 0;
+			while (rs.next()) {
 				number = rs.getInt("count(*)");
 			}
-			//會員追隨/取消追隨
-			followToggle(member_id ,member_id_2 ,number);
-				
+			// 會員追隨/取消追隨
+
+			String text = "";
+			if (number == 1) {
+				// 已經追蹤 所以刪除
+				sql = "delete from FAVORITE where MEMBER_ID = ? and MEMBER_ID_2 = ?";
+				text = "unfollow";
+			} else if (number == 0) {
+				// 尚未追蹤 所以新增
+				sql = "insert into FAVORITE (MEMBER_ID, MEMBER_ID_2) values (?,?)";
+				text = "follow";
+			} else {
+				System.out.println("followToggle count Error");
+			}
+			try (Connection connection = dataSource.getConnection();
+					PreparedStatement pstmt2 = connection.prepareStatement(sql);) {
+				pstmt2.setInt(1, member_id);
+				pstmt2.setInt(2, member_id_2);
+				pstmt2.executeUpdate();
+				System.out.println(text);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
 	}
-	//follow功能 如果已經有追蹤的話 刪除
+	
 	@Override
-	public void followToggle(int member_id, int member_id_2, int count) {
-		String sql = "";
-		String test = "";
-		if(count == 1) {
-			//已經追蹤 所以刪除
-			sql = "delete from FAVORITE where MEMBER_ID = ? and MEMBER_ID_2 = ?";
-			test = "unfollow";
-		}else if(count == 0){
-			//尚未追蹤 所以新增
-			sql = "insert into FAVORITE (MEMBER_ID, MEMBER_ID_2) values (?,?)";	
-			test = "follow";
-		}else{
-			System.out.println("followToggle count Error");
-		}
+	public String getMyWallet(int member_id) {
+		//join merch group group_category
+		final String sql = 
+				"	SELECT \n" + 
+				"	 	m.*,\n" + 
+				"    	g.GROUP_CATEGORY_ID,\n" +
+				"		c.CATEGORY\n" +
+				"	FROM\n" + 
+				"		plus_one.member_order as m\n" + 
+				"	LEFT JOIN\n" + 
+				"		plus_one.group as g\n" + 
+				"		ON " +
+				"		m.GROUP_ID = g.GROUP_ID\n" + 
+				"	LEFT JOIN\n" + 
+				"		plus_one.group_category as c\n" + 
+				"		ON " +
+				"		g.GROUP_CATEGORY_ID = c.GROUP_CATEGORY_ID\n" + 
+				"	WHERE " +
+				"		m.MEMBER_ID = ?" +
+				"		AND " +
+				"		m.DELIVER_STATUS = 1";
+//		final String sql = "Select * from MEMBER_ORDER where LEFT(UPDATE_TIME,4) = ? and MEMBER_ID = ?";
+		List<JsonObject> jsobObjectList = new ArrayList<>();
 		try (Connection connection = dataSource.getConnection();
 				PreparedStatement pstmt = connection.prepareStatement(sql);) {
-			pstmt.setInt(1, member_id);
-			pstmt.setInt(2, member_id_2);
-			pstmt.executeUpdate();
-			System.out.println(test);
-		}catch (Exception e) {
+			pstmt.setInt(1,member_id);
+			ResultSet rs = pstmt.executeQuery();
+			JsonObject jsonObject = new JsonObject();
+			JsonObject tempList = new JsonObject();
+			while (rs.next()) {
+				int group_id = rs.getInt("GROUP_ID");
+//				String name = rs.getString("NAME");
+				int money = rs.getInt("TOTAL");
+				Timestamp time = rs.getTimestamp("UPDATE_TIME");
+				String cate = rs.getString("CATEGORY");
+				
+				jsonObject.addProperty("GROUP_ID", group_id);
+//				jsonObject.addProperty("NAME", name);
+				jsonObject.addProperty("TOTAL", money);
+				jsonObject.addProperty("UPDATE_TIME", time.toString());
+				jsonObject.addProperty("CATEGORY", cate);
+				tempList = new Gson().fromJson(jsonObject.toString(), JsonObject.class);
+				jsobObjectList.add(tempList);
+			}
+			
+			return jsobObjectList.toString();
+		} catch (SQLException e) {
 			e.printStackTrace();
 		}
+		return "error";
+	}
+
+	@Override
+	public String getMyWalletDetail(int group_id) {
+		//取得group底下的merch名稱跟價錢
+		String sql = "select \n" + 
+				"group_list.group_id,\n" + 
+				"merch.name,\n" + 
+				"merch.price\n" + 
+				"from plus_one.group_list\n" + 
+				"Right JOIN plus_one.merch\n" + 
+				"on group_list.MERCH_ID = merch.MERCH_ID\n" + 
+				"where group_list.GROUP_ID = ?";
+		JsonObject jsonObject = new JsonObject();
+		JsonObject jsonObject2 = new JsonObject();
+		List<JsonObject> jsonList = new ArrayList<>();
+		try (Connection conn = dataSource.getConnection();
+				PreparedStatement pstmt = conn.prepareStatement(sql);){
+			pstmt.setInt(1,group_id);
+			ResultSet rs = pstmt.executeQuery();
+			while(rs.next()) {
+				String name = rs.getString("NAME");
+				int price = rs.getInt("PRICE");
+				
+				jsonObject.addProperty("NAME", name);
+				jsonObject.addProperty("PRICE", price);
+				
+//				System.out.println("jsonObject: " + jsonObject.toString());
+				jsonObject2 = new Gson().fromJson(jsonObject.toString(), JsonObject.class);
+//				System.out.println("jsonObject2: " + jsonObject2.toString());
+				jsonList.add(jsonObject2);
+//				System.out.println("jsonList: " + jsonList);
+			}
+			return jsonList.toString();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return "error";
+	}
+	
+	@Override
+	public String getFollowMember(int member_id) {
+		final String sql = "select * from FAVORITE where MEMBER_ID = ?";
+			List<JsonObject> followList = new ArrayList<>();
+			JsonObject follow_member = new JsonObject();
+			try (Connection conn = dataSource.getConnection();
+					PreparedStatement pstmt = conn.prepareStatement(sql);) {
+				pstmt.setInt(1,member_id);
+				ResultSet rs = pstmt.executeQuery();
+				while(rs.next()) {
+					String follow = findById(rs.getInt("MEMBER_ID_2"), "MEMBER");
+					follow_member = new Gson().fromJson(follow, JsonObject.class);
+					followList.add(follow_member);
+				}
+				return new Gson().toJson(followList);
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+			return "error";
 	}
 }

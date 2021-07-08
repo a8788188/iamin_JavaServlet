@@ -18,6 +18,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.bean.Member;
+import com.bean.Merch;
 
 @WebServlet("/memberServelt")
 public class MemberServelt extends HttpServlet {
@@ -26,12 +27,14 @@ public class MemberServelt extends HttpServlet {
 	private MemberDao memberDao = null;
 	private byte[] image = null;
 	private Member member = null;
+	private Merch merch;
+	private String jsonCase;
 
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		request.setCharacterEncoding("UTF-8");
-//		Gson gson = new Gson();
-		Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss").create();
+		Gson gson = new Gson();
+//		Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss").create();
 		BufferedReader br = request.getReader();
 		StringBuilder jsonIn = new StringBuilder();
 		String line = null;
@@ -48,25 +51,34 @@ public class MemberServelt extends HttpServlet {
 		}
 
 		String action = jsonObject.get("action").getAsString();
-		String memberJson = jsonObject.get("member").getAsString();
-		member = gson.fromJson(memberJson, Member.class);
 		
 		int count = 0;
 		int mysqlMemberId = -1;
 		
 		switch (action) {
+		case "connected":
+			writeRespond(response, "OK");
+			break;
 			//登入
 		case "login":
+			jsonCase = jsonObject.get("member").getAsString();
+			member = gson.fromJson(jsonCase, Member.class);
 			mysqlMemberId = memberDao.verification(member);
 			writeRespond(response, String.valueOf(mysqlMemberId));
 			break;
+			
 			//註冊
 		case "signup":
+			jsonCase = jsonObject.get("member").getAsString();
+			member = gson.fromJson(jsonCase, Member.class);
 			mysqlMemberId = memberDao.insert(member);
 			writeRespond(response, String.valueOf(mysqlMemberId));
 			break;
+			
 			//更新使用者
 		case "update":
+			jsonCase = jsonObject.get("member").getAsString();
+			member = gson.fromJson(jsonCase, Member.class);
 			if (jsonObject.get("imageBase64") != null) {
 				String imageBase64 = jsonObject.get("imageBase64").getAsString();
 				if (imageBase64 != null && !imageBase64.isEmpty()) {
@@ -76,13 +88,19 @@ public class MemberServelt extends HttpServlet {
 			count = memberDao.update(member,image);
 			writeRespond(response, String.valueOf(count));
 			break;
+			
 			//用MEMBER_ID取得會員資訊
 		case "findById":
+			jsonCase = jsonObject.get("member").getAsString();
+			member = gson.fromJson(jsonCase, Member.class);
 			String obj = memberDao.findById(member.getId(),"MEMBER");
 			writeRespond(response, obj.toString());
 			break;
+			
 			//抓圖片
 		case "getImage":
+			jsonCase = jsonObject.get("member").getAsString();
+			member = gson.fromJson(jsonCase, Member.class);
 			OutputStream os = response.getOutputStream();
 			image = memberDao.getImage(member.getId());
 			if (image != null) {
@@ -90,34 +108,48 @@ public class MemberServelt extends HttpServlet {
 				response.setContentLength(image.length);
 				os.write(image);}
 			break;
+			
 			//追隨或取消追隨
 		case "follow":
+			jsonCase = jsonObject.get("member").getAsString();
+			member = gson.fromJson(jsonCase, Member.class);
 			int member_id_2 = jsonObject.get("follwer_id").getAsInt();
 			memberDao.follow(member.getId(), member_id_2);
 			break;
+			
 			//取得被追蹤的會員資料
 		case "getFollowMember":
-			String followList = memberDao.findById(member.getId(),"FAVORITE");
+			jsonCase = jsonObject.get("member").getAsString();
+			member = gson.fromJson(jsonCase, Member.class);
+			String followList = memberDao.getFollowMember(member.getId());
 			writeRespond(response, followList);
 			break;
+			
+		case "getMyWallet":
+			jsonCase = jsonObject.get("member").getAsString();
+			member = gson.fromJson(jsonCase, Member.class);
+			String pieChartData = memberDao.getMyWallet(member.getId());
+			writeRespond(response, pieChartData);
+			break;
+			
+		case "getMyWalletDetail":
+			//記得改成merch
+			jsonCase = jsonObject.get("merch").getAsString();
+			merch = gson.fromJson(jsonCase, Merch.class);
+			String pieChartDataDetail = memberDao.getMyWalletDetail(merch.getMerchId());
+			writeRespond(response, pieChartDataDetail);
+		default:
+			break;
 		}
-	}
-	
-	@Override
-	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-		resp.setContentType("text/html");
-        String name = "jojo";
-        PrintWriter out = resp.getWriter();
-        out.print(name);
 	}
 
 	private void writeRespond(HttpServletResponse response, String output) throws IOException {
 		response.setContentType(CONTENT_TYPE);
 		PrintWriter out = response.getWriter();
 		out.print(output);
+		System.out.println("output: " + output);
 	}
 	
 
 	
-
 }
