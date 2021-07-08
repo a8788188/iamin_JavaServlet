@@ -20,7 +20,7 @@ import com.google.gson.JsonObject;
 
 
 @WebServlet("/Home")
-public class Home extends HttpServlet {
+public class HomeServelt extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	HomedataDao homedataDao = null;
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -29,7 +29,7 @@ public class Home extends HttpServlet {
 
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		
-		 System.out.println("Home doPost - Start");
+			System.out.println("Home doPost - Start");
 	        request.setCharacterEncoding("UTF-8");
 	        response.setContentType("application/json; charset=UTF-8");
 	        Gson gson = new Gson();
