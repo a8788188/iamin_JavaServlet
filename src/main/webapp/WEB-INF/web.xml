@@ -5,7 +5,5 @@
 	version="4.0">
 
 	<!-- 設定首頁，沒寫預設會搜尋index.html -->
-	<welcome-file-list>
-		<welcome-file>index.html</welcome-file>
-	</welcome-file-list>
+	
 </web-app>

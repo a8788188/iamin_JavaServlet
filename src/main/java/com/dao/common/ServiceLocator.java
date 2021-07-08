@@ -32,7 +32,8 @@ public class ServiceLocator {
     public DataSource getDataSource() {
         DataSource dataSource = null;
         try {
-            dataSource = (DataSource) initalContext.lookup("java:comp/env/jdbc/plus_one");
+            dataSource = (DataSource) initalContext.lookup("java:comp/env/jdbc/iamin_JavaServlet");
+
         } catch (NamingException e) {
             e.printStackTrace();
         }
