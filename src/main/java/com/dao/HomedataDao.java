@@ -9,4 +9,6 @@ public interface HomedataDao {
 	List<Homedata> selectAllgroup();
 	
 	List<Homedata> selectAllgroupPrice(int GroupID);
+	
+	byte[] getGroupimage(int GroupID);
 }

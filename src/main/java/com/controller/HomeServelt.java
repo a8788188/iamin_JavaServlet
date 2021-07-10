@@ -2,6 +2,7 @@ package com.controller;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.util.List;
 
@@ -17,6 +18,8 @@ import com.data.Homedata;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
+import com.mysql.cj.protocol.a.result.ByteArrayRow;
+import com.dao.common.ImageUtil;
 
 
 @WebServlet("/Home")
@@ -28,7 +31,7 @@ public class HomeServelt extends HttpServlet {
 	}
 
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		
+			int GroupId;
 			System.out.println("Home doPost - Start");
 	        request.setCharacterEncoding("UTF-8");
 	        response.setContentType("application/json; charset=UTF-8");
@@ -51,6 +54,8 @@ public class HomeServelt extends HttpServlet {
 	        String action = jsonObject.get("action").getAsString();
 	        System.out.println("action---: " + action);
 	        
+	        
+	        
 	        switch (action) {
 	        case "getAllHomeData":
 	        	List<Homedata> Home_Group = homedataDao.selectAllgroup();
@@ -58,9 +63,23 @@ public class HomeServelt extends HttpServlet {
 	        	writeText(response, gson2.toJson(Home_Group));
 	        	break;
 	        case "getAllGroupPrice":
-	        	int GroupId = jsonObject.get("groupID").getAsInt();
+	        	GroupId = jsonObject.get("groupID").getAsInt();
 	        	List<Homedata> Home_Group_Price = homedataDao.selectAllgroupPrice(GroupId);
 	        	writeText(response, gson.toJson(Home_Group_Price));
+	        	break;
+	        case "getGroupimage":
+	        	OutputStream os = response.getOutputStream();
+	        	GroupId = jsonObject.get("groupID").getAsInt();
+	        	System.out.println(String.valueOf(GroupId));
+				int imageSize = jsonObject.get("imageSize").getAsInt();
+				byte[] image = homedataDao.getGroupimage(GroupId);
+				if (image != null) {
+					image = ImageUtil.shrink(image, imageSize);
+					response.setContentType("image/*");
+					response.setContentLength(image.length);
+					os.write(image);
+				}
+	        	break;
 	        default:
 	            break;
 	        }
