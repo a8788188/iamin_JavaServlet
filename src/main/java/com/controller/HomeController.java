@@ -23,7 +23,7 @@ import com.dao.common.ImageUtil;
 
 
 @WebServlet("/Home")
-public class HomeServelt extends HttpServlet {
+public class HomeController extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	HomedataDao homedataDao = null;
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
