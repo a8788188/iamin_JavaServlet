@@ -11,31 +11,34 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.bean.Merch;
 import com.dao.HomedataDao;
+import com.dao.MerchDao;
 import com.dao.implemen.HomedataDaoImp;
+import com.dao.implemen.MerchDaoImp;
 import com.data.Homedata;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 
 
-@WebServlet("/Home")
-public class HomeServelt extends HttpServlet {
+@WebServlet("/Merch")
+public class MerchbrowseController extends HttpServlet {
 	private static final long serialVersionUID = 1L;
-	HomedataDao homedataDao = null;
+	MerchDao merchDao = null;
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 	
 	}
 
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		
-			System.out.println("Home doPost - Start");
+			System.out.println("Merch doPost - Start");
 	        request.setCharacterEncoding("UTF-8");
 	        response.setContentType("application/json; charset=UTF-8");
 	        Gson gson = new Gson();
-	        
-	        if (homedataDao == null) {
-	        	homedataDao = new HomedataDaoImp();
+	       
+	        if (merchDao == null) {
+	        	merchDao = new MerchDaoImp();
 			}
 	        
 	     // 以列為單位讀入 (純文字)
@@ -52,15 +55,10 @@ public class HomeServelt extends HttpServlet {
 	        System.out.println("action---: " + action);
 	        
 	        switch (action) {
-	        case "getAllHomeData":
-	        	List<Homedata> Home_Group = homedataDao.selectAllgroup();
-	        	Gson gson2 = new GsonBuilder().setDateFormat("MMM d, yyyy h:mm:ss a").create();
-	        	writeText(response, gson2.toJson(Home_Group));
-	        	break;
-	        case "getAllGroupPrice":
-	        	int GroupId = jsonObject.get("groupID").getAsInt();
-	        	List<Homedata> Home_Group_Price = homedataDao.selectAllgroupPrice(GroupId);
-	        	writeText(response, gson.toJson(Home_Group_Price));
+	        case "getAllByGroupIdId":
+	        	int GroupId = jsonObject.get("groupId").getAsInt();
+	        	List<Merch> Merch_browse = merchDao.selectAllByGroupId(GroupId);
+	        	writeText(response, gson.toJson(Merch_browse));
 	        default:
 	            break;
 	        }

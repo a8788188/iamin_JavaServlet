@@ -82,4 +82,27 @@ public class HomedataDaoImp implements HomedataDao {
 		return homedataPricelist;
 	}
 
+	@Override
+	public byte[] getGroupimage(int GroupID) {
+		String sql = "select\n" + 
+				"	m1.IMG_1\n" + 
+				"from group_list gl1\n" + 
+				"	left join merch m1\n" + 
+				"	on gl1.MERCH_ID = m1.MERCH_ID \n" + 
+				"where GROUP_ID = ?\n" + 
+				"limit 1;";
+		byte[] image = null;
+		try (Connection connection = dataSource.getConnection();
+				PreparedStatement ps = connection.prepareStatement(sql);) {
+			ps.setInt(1, GroupID);
+			ResultSet rs = ps.executeQuery();
+			if (rs.next()) {
+				image = rs.getBytes(1);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} 
+		return image;
+	}
+
 }
