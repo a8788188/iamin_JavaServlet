@@ -22,7 +22,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 
 
-@WebServlet("/Merch")
+@WebServlet("/Merchbrowse")
 public class MerchbrowseController extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	MerchDao merchDao = null;
