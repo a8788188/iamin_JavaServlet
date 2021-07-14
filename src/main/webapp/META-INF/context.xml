@@ -18,7 +18,7 @@
         type="javax.sql.DataSource" 
         driverClassName="com.mysql.cj.jdbc.Driver"
         url="jdbc:mysql://219.68.160.213/plus_one?useUnicode=yes&amp;characterEncoding=utf8&amp;useSSL=true&amp;serverTimezone=Asia/Taipei" 
-        username="Caleb"
+        username="chungyi"
         password="p@ssw0rd" 
         maxTotal="20" 
         maxIdle="10" 
