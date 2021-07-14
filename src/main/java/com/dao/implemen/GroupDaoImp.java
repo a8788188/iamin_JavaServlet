@@ -91,8 +91,43 @@ public class GroupDaoImp implements GroupDao {
     
     @Override
     public List<Group> selectAll() {
-        // TODO Auto-generated method stub
-        return null;
+        String sql = "SELECT " 
+                + "FROM plus_one.group "
+                + "ORDER BY g.START_TIME DESC;";
+        
+        List<Group> groupList = new ArrayList<>();
+        
+        try (
+                Connection connection = dataSource.getConnection();
+                PreparedStatement ps = connection.prepareStatement(sql);
+        ) {
+            ResultSet rs = ps.executeQuery();
+            
+            while (rs.next()) {
+                Group group = new Group(
+                        rs.getInt(1),
+                        rs.getInt(2),
+                        rs.getString(3),
+                        rs.getInt(4),
+                        rs.getInt(5),
+                        rs.getInt(6),
+                        rs.getString(7),
+                        rs.getString(8),
+                        rs.getInt(9),
+                        rs.getInt(10),
+                        rs.getString(11),
+                        rs.getBoolean(12),
+                        rs.getInt(13),
+                        rs.getInt(14),
+                        rs.getInt(15),
+                        rs.getTimestamp(16)
+                        );
+                groupList.add(group);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return groupList;
     }
 
     @Override
