@@ -16,7 +16,6 @@ import com.dao.HomedataDao;
 import com.dao.MerchDao;
 import com.dao.implemen.HomedataDaoImp;
 import com.dao.implemen.MerchDaoImp;
-import com.data.Homedata;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
