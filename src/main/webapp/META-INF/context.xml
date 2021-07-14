@@ -17,9 +17,9 @@
         auth="Container"
         type="javax.sql.DataSource" 
         driverClassName="com.mysql.cj.jdbc.Driver"
-        url="jdbc:mysql://localhost/plus_one?useUnicode=yes&amp;characterEncoding=utf8&amp;useSSL=true&amp;serverTimezone=Asia/Taipei" 
-        username="root"
-        password="password" 
+        url="jdbc:mysql://219.68.160.213/plus_one?useUnicode=yes&amp;characterEncoding=utf8&amp;useSSL=true&amp;serverTimezone=Asia/Taipei" 
+        username="Caleb"
+        password="p@ssw0rd" 
         maxTotal="20" 
         maxIdle="10" 
         maxWaitMillis="5000"/>
