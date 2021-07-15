@@ -1,19 +1,20 @@
 package com.bean;
 
 public class Merch {
-	
-	private int merchId;
+    private int merchId;
     private int memberId; // 會員ID
     private String name; // 名稱
     private int price; // 價格
     private String merchDesc; // 商品說明
+    private int lockCount; // 團購選擇了此商品的次數
 
-    public Merch(int merchId, int memberId, String name, int price, String merchDesc) {
+    public Merch(int merchId, int memberId, String name, int price, String merchDesc, int lockCount) {
         this.merchId = merchId;
         this.memberId = memberId;
         this.name = name;
         this.price = price;
         this.merchDesc = merchDesc;
+        this.lockCount = lockCount;
     }
 
     public int getMerchId() {
@@ -56,4 +57,11 @@ public class Merch {
         this.merchDesc = merchDesc;
     }
 
+    public int getLockCount() {
+        return lockCount;
+    }
+
+    public void setLockCount(int lockCount) {
+        this.lockCount = lockCount;
+    }
 }
