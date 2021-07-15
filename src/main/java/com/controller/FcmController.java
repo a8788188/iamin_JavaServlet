@@ -35,7 +35,7 @@ public class FcmController extends HttpServlet {
     @Override
     public void init() throws ServletException {
         // (測試資料)
-        registrationTokens.add("f2siaH80Qp-yzXGjKzW5MC:APA91bF5PRb-Cj4XQBpoSKtoaWvkAmZdmCq6TBeSLmWJBdTb3lON6QCTqeHcnHZvq1BbZwfaNWBm2AiK69GLQ_30O28Dqag_wgERoAjdnEHEjyNSXrWiOHjPzvhu7iTBl_4PkEJd5DGP");
+        registrationTokens.add("efkU2I_dSNOIiPaeQ3nnGf:APA91bFrCgy1Ad5tu-GoKQKYtP9j5ZoesJfwzpDpv1oYNnOLXA43gZH7aEcHyEciwQqMNLDV8fU1SugpzvoXzCSfmZK-QqEV_l_52weAqqQnSZKeTNWd-SUO1Y5uiX6iQLUhlmHpxPg2");
         // 私密金鑰檔案可以儲存在專案以外
         // File file = new File("/path/to/firsebase-java-privateKey.json");
         // 私密金鑰檔案也可以儲存在專案WebContent目錄內，私密金鑰檔名要與程式所指定的檔名相同
