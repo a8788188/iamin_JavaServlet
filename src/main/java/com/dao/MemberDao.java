@@ -8,12 +8,15 @@ import com.data.MyWallet;
 public interface MemberDao {
 	
 	int login(Member member);
-	boolean loginTimeUpdate(int member_id);
+	boolean timeUpdate(int member_id,String column);
 	
 	int insert(Member member);
 	int update(Member member,byte[] image);
 	void delete(int member_id);
 	byte[] getImage(int member_id);
+	
+	Member findUidbyEmail(Member member);
+	
 	Member findById(int member_id , String table);
 	//取得我的錢包明細
 	List<MyWallet> getMyWallet(int member_id);
