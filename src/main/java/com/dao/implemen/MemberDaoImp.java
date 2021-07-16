@@ -44,8 +44,8 @@ public class MemberDaoImp implements MemberDao {
 	}
 	
 	@Override
-	public boolean loginTimeUpdate(int member_id) {
-		String sql = "update MEMBER set LOGIN_TIME = now() where MEMBER_ID = ?";
+	public boolean timeUpdate(int member_id,String column) {
+		String sql = "update MEMBER set " + column + " = now() where MEMBER_ID = ?";
 		try (Connection connection = dataSource.getConnection();
 				PreparedStatement pstmt = connection.prepareStatement(sql);){
 			pstmt.setInt(1, member_id);
@@ -160,7 +160,6 @@ public class MemberDaoImp implements MemberDao {
 			pstmt.setInt(1, id);
 			try (ResultSet rs = pstmt.executeQuery()) {
 					if (rs.next()) {
-						
 						String uUid = rs.getString("UUID");
 						String email = rs.getString("Email");
 						int followCount = rs.getInt("FOLLOW_COUNT");
@@ -350,4 +349,26 @@ public class MemberDaoImp implements MemberDao {
 			}
 			return null;
 	}
+
+	@Override
+	public Member findUidbyEmail(Member member) {
+		final String sql = "select * from MEMBER where EMAIL = ?";
+		try (Connection conn = dataSource.getConnection();
+				PreparedStatement pstmt = conn.prepareStatement(sql);){
+			pstmt.setString(1,member.getEmail());
+			ResultSet rs = pstmt.executeQuery();
+			while(rs.next()) {
+				String uUID = rs.getString("UUID");
+				member.setuUId(uUID);
+			}
+			
+			return member;
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	
 }

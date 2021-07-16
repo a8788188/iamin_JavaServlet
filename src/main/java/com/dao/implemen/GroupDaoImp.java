@@ -85,8 +85,42 @@ public class GroupDaoImp implements GroupDao {
 
     @Override
     public Group selectById(int id) {
-        // TODO Auto-generated method stub
-        return null;
+        String sql = "SELECT * " 
+                + "FROM plus_one.group "
+                + "WHERE GROUP_ID = ?; ";
+        
+        Group group = null;
+        try (
+                Connection connection = dataSource.getConnection();
+                PreparedStatement ps = connection.prepareStatement(sql);
+        ) {
+            ps.setInt(1, id);
+            ResultSet rs = ps.executeQuery();
+            
+            while (rs.next()) {
+                group = new Group(
+                        rs.getInt(1),
+                        rs.getInt(2),
+                        rs.getString(3),
+                        rs.getInt(4),
+                        rs.getInt(5),
+                        rs.getInt(6),
+                        rs.getString(7),
+                        rs.getString(8),
+                        rs.getInt(9),
+                        rs.getInt(10),
+                        rs.getString(11),
+                        rs.getBoolean(12),
+                        rs.getInt(13),
+                        rs.getInt(14),
+                        rs.getInt(15),
+                        rs.getTimestamp(16)
+                        );
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return group;
     }
     
     @Override
