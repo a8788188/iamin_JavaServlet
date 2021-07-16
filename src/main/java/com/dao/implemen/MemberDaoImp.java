@@ -14,8 +14,6 @@ import com.bean.Member;
 import com.dao.MemberDao;
 import com.dao.common.ServiceLocator;
 import com.data.MyWallet;
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
 
 public class MemberDaoImp implements MemberDao {
 	DataSource dataSource;
@@ -25,7 +23,7 @@ public class MemberDaoImp implements MemberDao {
 	}
 
 	@Override
-	public int login(Member member) {
+	public Member login(Member member) {
 		String sql = "select * from MEMBER where EMAIL = ? and PASSWORD = ?";
 		try (Connection connection = dataSource.getConnection();
 				PreparedStatement pstmt = connection.prepareStatement(sql);) {
@@ -33,14 +31,31 @@ public class MemberDaoImp implements MemberDao {
 			pstmt.setString(2, member.getPassword());
 			ResultSet rs = pstmt.executeQuery();
 			while (rs.next()) {
-				member.setId(rs.getInt("MEMBER_ID"));
-				
+				int memberId = rs.getInt("MEMBER_ID");
+				int followCount = rs.getInt("FOLLOW_COUNT");
+				String uUid = rs.getString("UUID");
+				String email = rs.getString("EMAIL");
+				String password = rs.getString("PASSWORD");
+				String nickname = rs.getString("NICKNAME");
+				String phone = rs.getString("PHONE");
+				double rating = rs.getDouble("RATING");
+				String fcm = rs.getString("FCM_TOKEN");
+
+				member = new Member(memberId,
+									followCount,
+									rating,
+									uUid,
+									email,
+									password,
+									nickname,
+									phone,
+									fcm);
 			}
-			return member.getId();
+			return member;
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-		return -1;
+		return null;
 	}
 	
 	@Override
@@ -58,7 +73,7 @@ public class MemberDaoImp implements MemberDao {
 	}
 
 	@Override
-	public int insert(Member member) {
+	public Member insert(Member member) {
 		String sql = "";
 		if (member.getNickname() != null && member.getPhoneNumber() != null) {
 			sql = "insert into MEMBER (UUID,EMAIL,PASSWORD,START_TIME,NICKNAME,PHONE) values (?,?,?,?,?,?)";
@@ -88,13 +103,12 @@ public class MemberDaoImp implements MemberDao {
 			while (rs.next()) {
 				member.setId(rs.getInt(1));
 			}
-			// 回傳memberId供android studio 使用
-			return member.getId();
+			return member;
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		// 錯誤代碼 -1 回傳
-		return -1;
+		return null;
 	}
 
 	@Override
@@ -152,9 +166,9 @@ public class MemberDaoImp implements MemberDao {
 	}
 
 	@Override
-	public Member findById(int id, String table) {
-		final String sql = "select * from " + table + " where MEMBER_ID = ?";
-		Member member = Member.getInstance();
+	public Member findById(int id) {
+		final String sql = "select * from Member where MEMBER_ID = ?";
+		Member member = null;
 		try (Connection conn = dataSource.getConnection();
 				PreparedStatement pstmt = conn.prepareStatement(sql);) {
 			pstmt.setInt(1, id);
@@ -322,7 +336,6 @@ public class MemberDaoImp implements MemberDao {
 										 price));
 //				System.out.println("groupDetails: " + groupDetails);
 			}
-			
 			return groupDetails;
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -339,7 +352,7 @@ public class MemberDaoImp implements MemberDao {
 				pstmt.setInt(1,member_id);
 				ResultSet rs = pstmt.executeQuery();
 				while(rs.next()) {
-					Member followMember = findById(rs.getInt("MEMBER_ID_2"), "MEMBER");
+					Member followMember = findById(rs.getInt("MEMBER_ID_2"));
 					System.out.println(followMember);
 					memberList.add(followMember);
 				}
@@ -351,24 +364,69 @@ public class MemberDaoImp implements MemberDao {
 	}
 
 	@Override
-	public Member findUidbyEmail(Member member) {
-		final String sql = "select * from MEMBER where EMAIL = ?";
+	public Member findbyUuid(String uUid) {
+		final String sql = "select * from Member where UUID = ?";
+		Member member = null;
 		try (Connection conn = dataSource.getConnection();
-				PreparedStatement pstmt = conn.prepareStatement(sql);){
-			pstmt.setString(1,member.getEmail());
+				PreparedStatement pstmt = conn.prepareStatement(sql);) {
+			pstmt.setString(1, uUid);
 			ResultSet rs = pstmt.executeQuery();
-			while(rs.next()) {
-				String uUID = rs.getString("UUID");
-				member.setuUId(uUID);
-			}
-			
-			return member;
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
+					if (rs.next()) {
+						int id = rs.getInt("MEMBER_ID");
+						String uId = rs.getString("UUID");
+						String email = rs.getString("Email");
+						int followCount = rs.getInt("FOLLOW_COUNT");
+						double rating = rs.getDouble("RATING");
+						String password = rs.getString("PASSWORD");
+						String nickname = rs.getString("NICKNAME") != null ? rs.getString("NICKNAME") : "";
+						String phoneNumber = rs.getString("PHONE") != null ? rs.getString("PHONE") : "";
+						Timestamp loginTime = rs.getTimestamp("LOGIN_TIME");
+						Timestamp updateTime = rs.getTimestamp("UPDATE_TIME");
+						Timestamp startTime = rs.getTimestamp("START_TIME");
+						Timestamp logoutTime = rs.getTimestamp("LOGOUT_TIME");
+						Timestamp deleteTime = rs.getTimestamp("DELETE_TIME");
+						String FCM_token = rs.getString("FCM_TOKEN");
+						
+						member = new Member(id,
+									 	    followCount,
+									 	    rating,
+									 	    uId,
+									 	    email,
+									 	    password,
+									 	    nickname,
+									 	    phoneNumber,
+									 	    startTime,
+									 	    updateTime,
+									 	    logoutTime,
+									 	    loginTime,
+									 	    deleteTime,
+									 	    FCM_token);
+					}
+					return member;
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		return null;
-	}
+		
+		return null;	}
 
+//	@Override
+//	public Member findUidbyEmail(Member member) {
+//		final String sql = "select * from MEMBER where EMAIL = ?";
+//		try (Connection conn = dataSource.getConnection();
+//				PreparedStatement pstmt = conn.prepareStatement(sql);){
+//			pstmt.setString(1,member.getEmail());
+//			ResultSet rs = pstmt.executeQuery();
+//			while(rs.next()) {
+//				String uUID = rs.getString("UUID");
+//				member.setuUId(uUID);
+//			}
+//			
+//			return member;
+//		} catch (SQLException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+//		return null;
+//	}
 	
 }
