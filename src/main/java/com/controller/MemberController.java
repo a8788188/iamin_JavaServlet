@@ -22,7 +22,7 @@ import com.google.gson.JsonObject;
 import com.bean.Member;
 
 @WebServlet("/memberServelt")
-public class MemberServelt extends HttpServlet {
+public class MemberController extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	private final static String CONTENT_TYPE = "application/json; charset=UTF-8";
 	private MemberDao memberDao = null;
@@ -62,17 +62,27 @@ public class MemberServelt extends HttpServlet {
 			jsonCase = jsonObject.get("member").getAsString();
 			member = gson.fromJson(jsonCase, Member.class);
 			mysqlMemberId = memberDao.login(member);
+			System.out.println("tessss");
 			//更新登入時間
-			memberDao.loginTimeUpdate(mysqlMemberId);
+			boolean i = memberDao.timeUpdate(mysqlMemberId,"LOGIN_TIME");
+			System.out.println("timeupdate: " + i);
 			writeRespond(response, String.valueOf(mysqlMemberId));
+			break;
+			
+		case "logout":
+			jsonCase = jsonObject.get("member").getAsString();
+			member = gson.fromJson(jsonCase, Member.class);
+			boolean b = memberDao.timeUpdate(member.getId(),"LOGOUT_TIME");
+			System.out.println("LOGOUT_TIME update : " + b);
 			break;
 			
 			//註冊
 		case "signup":
 			jsonCase = jsonObject.get("member").getAsString();
 			member = gson.fromJson(jsonCase, Member.class);
-			int affectRow = memberDao.insert(member);
-			writeRespond(response, String.valueOf(affectRow));
+			mysqlMemberId = memberDao.insert(member);
+			memberDao.timeUpdate(mysqlMemberId,"LOGIN_TIME");
+			writeRespond(response, String.valueOf(mysqlMemberId));
 			break;
 			
 			//更新使用者
