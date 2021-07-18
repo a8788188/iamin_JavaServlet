@@ -30,7 +30,9 @@ import com.model.MerchAction;
 public class FcmController extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	// (測試資料) 儲存所有client送來的token
-    private static final Set<String> registrationTokens = Collections.synchronizedSet(new HashSet<>());
+    //private static final Set<String> registrationTokens = Collections.synchronizedSet(new HashSet<>());
+    // 儲存要發推播的Token
+    private Set<String> registrationTokens = Collections.synchronizedSet(new HashSet<>());
     
     @Override
     public void init() throws ServletException {
@@ -57,6 +59,7 @@ public class FcmController extends HttpServlet {
         request.setCharacterEncoding("UTF-8");
         response.setContentType("application/json; charset=UTF-8");
         Gson gson = new Gson();
+        int groupId = 0;
         String title = "";
         String body = "";
         String data = "";
@@ -77,6 +80,11 @@ public class FcmController extends HttpServlet {
         
         switch (action) {
             case "sendFcmByGroupId":
+                // 取得GroupId
+                groupId = jsonObject.get("groupId").getAsInt();
+                // 抓取要發推播的Token
+                // registrationTokens = 
+                
                 title = jsonObject.get("title").getAsString();
                 body = jsonObject.get("body").getAsString();
                 data = jsonObject.get("data").getAsString();

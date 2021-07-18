@@ -26,7 +26,7 @@ public class GroupDaoImp implements GroupDao {
         String sql = "INSERT INTO plus_one.group " + 
                 "(MEMBER_ID, NAME, PROGRESS, GOAL, GROUP_CATEGORY_ID, GROUP_ITEM, CONTACT_NUMBER, PAYMENT_METHOD, " +
                 "GROUP_STATUS, CAUTION, PRIVACY_FLAG, TOTAL_AMOUNT, AMOUNT, CONDITION_COUNT, CONDITION_TIME) " + 
-                "VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
+                "VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
         // 取得自動編號
         String[] generatedColumns = {"GROUP_ID"};
         int insertGroupId = 0;
