@@ -5,7 +5,7 @@ public class MemberOrder {
     private int memberOrderId;
     private int memberId; // 會員ID
     private int groupId; // 團購ID
-    private int payentMethod; // 收款方式 (1.面交 2.信用卡 3.兩者皆可)
+    private int payentMethod; // 收款方式 (1.面交 2.信用卡)
     private int total; // 訂單金額
     private boolean receivePaymentStatus; // 收款狀態
     private boolean deliverStatus; // 發貨狀態

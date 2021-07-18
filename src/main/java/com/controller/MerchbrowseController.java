@@ -12,12 +12,15 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.bean.Group;
+import com.bean.MemberOrder;
 import com.bean.Merch;
 import com.dao.GroupDao;
 import com.dao.HomedataDao;
+import com.dao.MemberOrderDao;
 import com.dao.MerchDao;
 import com.dao.implemen.GroupDaoImp;
 import com.dao.implemen.HomedataDaoImp;
+import com.dao.implemen.MemberOrderDaoImp;
 import com.dao.implemen.MerchDaoImp;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -29,6 +32,7 @@ public class MerchbrowseController extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	MerchDao merchDao = null;
 	GroupDao groupDao = null;
+	MemberOrderDao memberOrderDao = null;
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 	
 	}
@@ -45,6 +49,9 @@ public class MerchbrowseController extends HttpServlet {
 			}
 	        if (groupDao == null) {
 				groupDao = new GroupDaoImp();
+			}
+	        if (memberOrderDao == null) {
+				memberOrderDao = new MemberOrderDaoImp();
 			}
 	     // 以列為單位讀入 (純文字)
 	        BufferedReader br = request.getReader();
@@ -70,6 +77,14 @@ public class MerchbrowseController extends HttpServlet {
 	        	Gson gson2 = new GsonBuilder().setDateFormat("MMM d, yyyy h:mm:ss a").create();
 	        	Group group = groupDao.selectById(GroupId2);
 	        	writeText(response, gson2.toJson(group));
+	        	break;
+	        case "insertMemberOrder":
+	        	String memberorderJson = jsonObject.get("memberorder").getAsString();
+				System.out.println("spotJson = " + memberorderJson);
+				MemberOrder memberOrder = gson.fromJson(memberorderJson, MemberOrder.class);
+				int count = memberOrderDao.insert(memberOrder);
+				writeText(response, String.valueOf(count));
+	        	break;
 	        default:
 	            break;
 	        }

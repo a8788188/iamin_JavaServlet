@@ -5,6 +5,7 @@ import java.util.List;
 import com.bean.MemberOrder;
 
 public interface MemberOrderDao {
+	
     int insert(MemberOrder memberOrder);
 
     int update(MemberOrder memberOrder);
