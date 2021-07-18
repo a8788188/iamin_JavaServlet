@@ -126,9 +126,10 @@ public class GroupDaoImp implements GroupDao {
     
     @Override
     public List<Group> selectAll() {
-        String sql = "SELECT * " 
-                + "FROM plus_one.group "
-                + "ORDER BY START_TIME DESC;";
+        String sql = "SELECT * " + 
+        		"FROM plus_one.group " + 
+        		"WHERE DELETE_TIME IS null " + 
+        		"ORDER BY START_TIME DESC;";
         
         List<Group> groupList = new ArrayList<>();
         
