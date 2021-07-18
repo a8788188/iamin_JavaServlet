@@ -74,30 +74,22 @@ public class MemberDaoImp implements MemberDao {
 
 	@Override
 	public Member insert(Member member) {
-		String sql = "";
-		if (member.getNickname() != null && member.getPhoneNumber() != null) {
-			sql = "insert into MEMBER (UUID,EMAIL,PASSWORD,START_TIME,NICKNAME,PHONE) values (?,?,?,?,?,?)";
-		} else if (member.getNickname() != null) {
-			sql = "insert into MEMBER (UUID,EMAIL,PASSWORD,START_TIME,NICKNAME) values (?,?,?,?,?)";
-		} else if (member.getPhoneNumber() != null) {
-			sql = "insert into MEMBER (UUID,EMAIL,PASSWORD,START_TIME,PHONE) values (?,?,?,?,?)";
-		} else {
-			sql = "insert into MEMBER (UUID,EMAIL,PASSWORD,START_TIME) values (?,?,?,?)";
-		}
+		String sql = "insert into MEMBER (UUID,EMAIL,PASSWORD,NICKNAME,PHONE,FCM_TOKEN) values (?,?,?,?,?,?)";
 		try (Connection conn = dataSource.getConnection();
 				PreparedStatement pstmt = conn.prepareStatement(sql, new String[] { "ID" });) {
-			pstmt.setString(1, member.getuUId());
-			pstmt.setString(2, member.getEmail());
-			pstmt.setString(3, member.getPassword());
-			pstmt.setTimestamp(4, new Timestamp(System.currentTimeMillis()));
-			if (member.getNickname() != null && member.getPhoneNumber() != null) {
-				pstmt.setString(5, member.getNickname());
-				pstmt.setString(6, member.getPhoneNumber());
-			} else if (member.getNickname() != null) {
-				pstmt.setString(5, member.getNickname());
-			} else if (member.getPhoneNumber() != null) {
-				pstmt.setString(5, member.getPhoneNumber());
-			}
+			String uUid = member.getuUId();
+			String email = member.getEmail();
+			String password = member.getPassword();
+			String nickname = member.getNickname() != null ? member.getNickname() : "";
+			String phoneNumber = member.getPhoneNumber() != null ? member.getPhoneNumber() : "";
+			String FCM_token = member.getFCM_token();
+			
+			pstmt.setString(1, uUid);
+			pstmt.setString(2, email);
+			pstmt.setString(3, password);
+			pstmt.setString(4, nickname);
+			pstmt.setString(5, phoneNumber);
+			pstmt.setString(6, FCM_token);
 				pstmt.executeUpdate();
 			ResultSet rs = pstmt.getGeneratedKeys();
 			while (rs.next()) {
@@ -408,6 +400,23 @@ public class MemberDaoImp implements MemberDao {
 		}
 		
 		return null;	}
+
+	@Override
+	public int updateTokenbyUid(String uId,String FCM_token) {
+		final String sql = "update MEMBER set FCM_TOKEN = ? where UUID = ?";
+		try (Connection conn = dataSource.getConnection();
+				PreparedStatement pstmt = conn.prepareStatement(sql);) {
+			pstmt.setString(1, FCM_token);
+			pstmt.setString(2,uId);
+			
+			return pstmt.executeUpdate();
+			
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return -1;
+	}
 
 //	@Override
 //	public Member findUidbyEmail(Member member) {
