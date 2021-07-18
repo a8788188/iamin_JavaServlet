@@ -14,11 +14,9 @@ public interface MemberDao {
 	int update(Member member,byte[] image);
 	void delete(int member_id);
 	byte[] getImage(int member_id);
-	
-	
-//	Member findUidbyEmail(Member member);
-	
+	int updateTokenbyUid(String uId,String FCM_token);
 	Member findbyUuid(String uUid);
+	
 	Member findById(int member_id);
 	//取得我的錢包明細
 	List<MyWallet> getMyWallet(int member_id);

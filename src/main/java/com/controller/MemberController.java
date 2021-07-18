@@ -30,7 +30,6 @@ public class MemberController extends HttpServlet {
 	private Member member = null;
 	private String jsonMember;
 	private int count;
-	int mysqlMemberId;
 
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
@@ -53,7 +52,6 @@ public class MemberController extends HttpServlet {
 		}
 
 		count = 0;
-		mysqlMemberId = -1;
 		String action = jsonObject.get("action").getAsString();
 		jsonMember = jsonObject.get("member").getAsString();
 		member = gson.fromJson(jsonMember, Member.class);
@@ -61,8 +59,11 @@ public class MemberController extends HttpServlet {
 		switch (action) {
 			//登入
 		case "login":
-			member = memberDao.login(member);
-			memberDao.timeUpdate(mysqlMemberId,"LOGIN_TIME");
+			member = memberDao.findbyUuid(member.getuUId());
+			if(member!=null) {
+			memberDao.timeUpdate(member.getId(),"LOGIN_TIME");
+			}
+			count = memberDao.updateTokenbyUid(member.getuUId(),member.getFCM_token());
 			writeRespond(response, gson.toJson(member));
 			break;
 			
@@ -76,6 +77,7 @@ public class MemberController extends HttpServlet {
 		case "signup":
 			member = memberDao.insert(member);
 			memberDao.timeUpdate(member.getId(),"START_TIME");
+			memberDao.timeUpdate(member.getId(),"LOGIN_TIME");
 			writeRespond(response, gson.toJson(member));
 			break;
 			
@@ -100,6 +102,8 @@ public class MemberController extends HttpServlet {
 			//第三方檢查用
 		case "findbyUuid":
 			member = memberDao.findbyUuid(member.getuUId());
+			count = memberDao.updateTokenbyUid(member.getuUId(),member.getFCM_token());
+			System.out.println("findbyUuid fcm update: " + count);
 			writeRespond(response, gson.toJson(member));
 			break;	
 			
@@ -128,6 +132,11 @@ public class MemberController extends HttpServlet {
 		case "getMyWallet":
 			List<MyWallet> myWalletList = memberDao.getMyWallet(member.getId());
 			writeRespond(response, gson.toJson(myWalletList));
+			break;
+		
+		case "updateTokenbyUid":
+			count = memberDao.updateTokenbyUid(member.getuUId(),member.getFCM_token());
+			System.out.println("findbyUuid fcm update: " + count);
 			break;
 		
 		default:
