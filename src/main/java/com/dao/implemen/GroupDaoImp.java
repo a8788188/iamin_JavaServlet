@@ -24,7 +24,7 @@ public class GroupDaoImp implements GroupDao {
     public int insert(Group group) {
         int count = 0;
         String sql = "INSERT INTO plus_one.group " + 
-                "(MEMBER_ID, NAME, GOAL, GROUP_CATEGORY_ID, GROUP_ITEM, CONTACT_NUMBER, PAYMENT_METHOD, " +
+                "(MEMBER_ID, NAME, PROGRESS, GOAL, GROUP_CATEGORY_ID, GROUP_ITEM, CONTACT_NUMBER, PAYMENT_METHOD, " +
                 "GROUP_STATUS, CAUTION, PRIVACY_FLAG, TOTAL_AMOUNT, AMOUNT, CONDITION_COUNT, CONDITION_TIME) " + 
                 "VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
         // 取得自動編號
@@ -37,18 +37,19 @@ public class GroupDaoImp implements GroupDao {
         ) {
             ps.setInt(1, group.getMemberId());
             ps.setString(2, group.getName());
-            ps.setInt(3, group.getGoal());
-            ps.setInt(4, group.getCategoryId());
-            ps.setString(5, group.getGroupItem());
-            ps.setString(6, group.getContactNumber());
-            ps.setInt(7, group.getPaymentMethod());
-            ps.setInt(8, group.getGroupStatus());
-            ps.setString(9, group.getCaution());
-            ps.setBoolean(10, group.getPrivacyFlag());
-            ps.setInt(11, group.getTotalAmount());
-            ps.setInt(12, group.getAmount());
-            ps.setInt(13, group.getConditionCount());
-            ps.setTimestamp(14, group.getConditionTime());
+            ps.setInt(3, group.getProgress());
+            ps.setInt(4, group.getGoal());
+            ps.setInt(5, group.getCategoryId());
+            ps.setString(6, group.getGroupItem());
+            ps.setString(7, group.getContactNumber());
+            ps.setInt(8, group.getPaymentMethod());
+            ps.setInt(9, group.getGroupStatus());
+            ps.setString(10, group.getCaution());
+            ps.setBoolean(11, group.getPrivacyFlag());
+            ps.setInt(12, group.getTotalAmount());
+            ps.setInt(13, group.getAmount());
+            ps.setInt(14, group.getConditionCount());
+            ps.setTimestamp(15, group.getConditionTime());
             
             count = ps.executeUpdate();
             if (count > 0) {
