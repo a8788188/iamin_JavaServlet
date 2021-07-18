@@ -8,7 +8,9 @@ public interface GroupDao {
     int insert(Group group);
 
     int delete(int id);
-
+    
+    int update(Group group);
+    
     Group selectById(int id);
 
     List<Group> selectAll();

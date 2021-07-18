@@ -211,4 +211,41 @@ public class GroupDaoImp implements GroupDao {
         }
         return groupList;
     }
+
+	@Override
+	public int update(Group group) {
+		String sql = "UPDATE plus_one.group \n" + 
+				"SET NAME = ? , PROGRESS = ? ,GOAL = ? ,\n" + 
+				"GROUP_CATEGORY_ID = ? , GROUP_ITEM = ? ,\n" + 
+				" CONTACT_NUMBER = ? , PAYMENT_METHOD = ? ,\n" + 
+				" GROUP_STATUS = ? , CAUTION = ? , PRIVACY_FLAG = ? ,\n" + 
+				" TOTAL_AMOUNT = ? ,AMOUNT = ? ,CONDITION_COUNT = ?,\n" + 
+				" CONDITION_TIME = ?\n" + 
+				"WHERE GROUP_ID = ?;";
+		try (
+                Connection connection = dataSource.getConnection();
+                PreparedStatement ps = connection.prepareStatement(sql);
+        ) {
+			ps.setString(1, group.getName());
+			ps.setInt(2, group.getProgress());
+			ps.setInt(3, group.getGoal());
+			ps.setInt(4, group.getCategoryId());
+			ps.setNString(5, group.getGroupItem());
+			ps.setString(6, group.getContactNumber());
+			ps.setInt(7, group.getPaymentMethod());
+			ps.setInt(8, group.getGroupStatus());
+			ps.setNString(9, group.getCategory());
+			ps.setBoolean(10, group.getPrivacyFlag());
+			ps.setInt(11, group.getTotalAmount());
+			ps.setInt(12, group.getAmount());
+			ps.setInt(13, group.getConditionCount());
+			ps.setTimestamp(14, group.getConditionTime());
+			ps.setInt(15, group.getGroupId());
+			ps.executeUpdate();
+			return 0;
+		}catch (SQLException e) {
+            e.printStackTrace();
+            return -1;
+        }
+	}
 }
