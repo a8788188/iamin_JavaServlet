@@ -11,9 +11,12 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.bean.Group;
 import com.bean.Merch;
+import com.dao.GroupDao;
 import com.dao.HomedataDao;
 import com.dao.MerchDao;
+import com.dao.implemen.GroupDaoImp;
 import com.dao.implemen.HomedataDaoImp;
 import com.dao.implemen.MerchDaoImp;
 import com.google.gson.Gson;
@@ -25,6 +28,7 @@ import com.google.gson.JsonObject;
 public class MerchbrowseController extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	MerchDao merchDao = null;
+	GroupDao groupDao = null;
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 	
 	}
@@ -39,7 +43,9 @@ public class MerchbrowseController extends HttpServlet {
 	        if (merchDao == null) {
 	        	merchDao = new MerchDaoImp();
 			}
-	        
+	        if (groupDao == null) {
+				groupDao = new GroupDaoImp();
+			}
 	     // 以列為單位讀入 (純文字)
 	        BufferedReader br = request.getReader();
 	        StringBuilder requstStr = new StringBuilder();
@@ -58,6 +64,12 @@ public class MerchbrowseController extends HttpServlet {
 	        	int GroupId = jsonObject.get("groupId").getAsInt();
 	        	List<Merch> Merch_browse = merchDao.selectAllByGroupId(GroupId);
 	        	writeText(response, gson.toJson(Merch_browse));
+	        	break;
+	        case "getGroupbyGroupId":
+	        	int GroupId2 = jsonObject.get("groupId").getAsInt();
+	        	Gson gson2 = new GsonBuilder().setDateFormat("MMM d, yyyy h:mm:ss a").create();
+	        	Group group = groupDao.selectById(GroupId2);
+	        	writeText(response, gson2.toJson(group));
 	        default:
 	            break;
 	        }
