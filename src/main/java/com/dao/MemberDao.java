@@ -7,17 +7,19 @@ import com.data.MyWallet;
 
 public interface MemberDao {
 	
-	int login(Member member);
+	Member login(Member member);
 	boolean timeUpdate(int member_id,String column);
 	
-	int insert(Member member);
+	Member insert(Member member);
 	int update(Member member,byte[] image);
 	void delete(int member_id);
 	byte[] getImage(int member_id);
 	
-	Member findUidbyEmail(Member member);
 	
-	Member findById(int member_id , String table);
+//	Member findUidbyEmail(Member member);
+	
+	Member findbyUuid(String uUid);
+	Member findById(int member_id);
 	//取得我的錢包明細
 	List<MyWallet> getMyWallet(int member_id);
 	//點擊圓餅圖後出現的細項 需要團購發起人id

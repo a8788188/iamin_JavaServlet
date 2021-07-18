@@ -25,21 +25,6 @@ public class Member implements Serializable {
     private Timestamp deleteTime;
     private String FCM_token;
 
-    //檢查是否有修改資料
-
-    private boolean update;
-
-    private Member() {
-    }
-
-    public static Member getInstance(){
-
-        if(memberInstance == null){
-            memberInstance = new Member();
-        }
-        return memberInstance;
-    }
-
     public Member(int id, String uUid){
         this.id = id;
         this.uUId = uUid;
@@ -52,6 +37,19 @@ public class Member implements Serializable {
         this.nickname = nickname;
     }
 
+    public Member(int id, int follow_count, double rating, String uUId, String email, String password, String nickname,
+			String phoneNumber, String fCM_token) {
+		this.id = id;
+		this.follow_count = follow_count;
+		this.rating = rating;
+		this.uUId = uUId;
+		this.email = email;
+		this.password = password;
+		this.nickname = nickname;
+		this.phoneNumber = phoneNumber;
+		this.FCM_token = fCM_token;
+	}
+    
     public Member(int id, int follow_count, double rating, String uUId, String email, String password, String nickname, String phoneNumber, Timestamp startTime, Timestamp updateTime, Timestamp logoutTime, Timestamp loginTime, Timestamp deleteTime, String FCM_token) {
         this.id = id;
         this.follow_count = follow_count;
@@ -197,12 +195,5 @@ public class Member implements Serializable {
         FCM_token = fCM_token;
     }
 
-    public boolean isUpdate() {
-        return update;
-    }
-
-    public void setUpdate(boolean update) {
-        this.update = update;
-    }
-
+	
 }
