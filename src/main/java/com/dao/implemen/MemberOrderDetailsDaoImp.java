@@ -1,5 +1,9 @@
 package com.dao.implemen;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.List;
 
 import javax.sql.DataSource;
@@ -17,7 +21,21 @@ public class MemberOrderDetailsDaoImp implements MemberOrderDetailsDao {
 
     @Override
     public int insert(MemberOrderDetails memberOrderDetails) {
-        // TODO Auto-generated method stub
+        String sql = "INSERT INTO member_order_details" + 
+        		"(MEMBER_ORDER_ID,MERCH_ID,QUANTITY,FORMAT_TOTAL)" + 
+        		"VALUES(?, ?, ?, ?);";
+        try (
+                Connection connection = dataSource.getConnection();
+                PreparedStatement ps = connection.prepareStatement(sql);
+        ) {
+            ps.setInt(1, memberOrderDetails.getMemberOrderId());
+            ps.setInt(2, memberOrderDetails.getMerchId());
+            ps.setInt(3, memberOrderDetails.getQuantity());
+            ps.setInt(4, memberOrderDetails.getFormat_total());
+            ps.executeUpdate();
+        }catch (SQLException e) {
+			e.printStackTrace();
+		} 
         return 0;
     }
 
