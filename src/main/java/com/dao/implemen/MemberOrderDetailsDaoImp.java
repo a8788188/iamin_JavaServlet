@@ -2,14 +2,18 @@ package com.dao.implemen;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.sql.DataSource;
 
 import com.bean.MemberOrderDetails;
+import com.bean.Merch;
 import com.dao.MemberOrderDetailsDao;
+import com.dao.MerchDao;
 import com.dao.common.ServiceLocator;
 
 public class MemberOrderDetailsDaoImp implements MemberOrderDetailsDao {
@@ -53,7 +57,7 @@ public class MemberOrderDetailsDaoImp implements MemberOrderDetailsDao {
 
     @Override
     public MemberOrderDetails selectById(int id) {
-        // TODO Auto-generated method stub
+        
         return null;
     }
 
@@ -65,7 +69,33 @@ public class MemberOrderDetailsDaoImp implements MemberOrderDetailsDao {
 
     @Override
     public List<MemberOrderDetails> selectAllByMemberOrderDaoId(int MemberOrderDaoId) {
-        // TODO Auto-generated method stub
+    	List<MemberOrderDetails> detailsList = new ArrayList<>();
+    	List<Merch> merchs = new ArrayList<Merch>();
+    	MerchDao merchDao = new MerchDaoImp();
+    	final String sql = "SELECT * FROM member_order_details WHERE member_order_id = ?";
+        MemberOrderDetails memberOrderDetails = null;
+        try (
+                Connection connection = dataSource.getConnection();
+                PreparedStatement ps = connection.prepareStatement(sql);
+        ){
+        	ps.setInt(1, MemberOrderDaoId);
+        	ResultSet rs = ps.executeQuery();
+        	while(rs.next()) {
+        		
+        		
+        		memberOrderDetails = new MemberOrderDetails(rs.getInt(1), 
+        													rs.getInt(2), 
+							        						rs.getInt(3), 
+							        						rs.getInt(4), 
+							        						rs.getInt(5));
+        		
+        		detailsList.add(memberOrderDetails);
+        	}
+        	return detailsList;
+        } catch (SQLException e) {
+			e.printStackTrace();
+		}
+    	
         return null;
     }
     

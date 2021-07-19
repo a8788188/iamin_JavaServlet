@@ -14,6 +14,8 @@ public interface MemberOrderDao {
     
     MemberOrder selectById(int id);
     
+    List<MemberOrder> selectAllByMemberId(int memberId);
+    
     List<MemberOrder> selectAll();
     
     List<MemberOrder> selectAllByGroupId(int groupId);

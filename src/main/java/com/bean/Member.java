@@ -29,6 +29,11 @@ public class Member implements Serializable {
         this.id = id;
         this.uUId = uUid;
     }
+    
+    public Member(String uUId, String nickname) {
+    	this.uUId = uUId;
+    	this.nickname = nickname;
+    }
 
     public Member(int id,int follow_count, double rating, String nickname) {
         this.id = id;

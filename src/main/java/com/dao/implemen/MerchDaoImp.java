@@ -232,7 +232,26 @@ public class MerchDaoImp implements MerchDao{
 
     @Override
     public Merch selectById(int id) {
-        // TODO Auto-generated method stub
+    	Merch merch = null;
+    	String sql = "SELECT * FROM merch WHERE merch_id = ?";
+    	try (
+                Connection connection = dataSource.getConnection();
+                PreparedStatement ps = connection.prepareStatement(sql);
+        ){
+            ps.setInt(1,id);
+            ResultSet rs = ps.executeQuery();
+            while(rs.next()) {
+            	merch = new Merch(rs.getInt(1),
+            			rs.getInt(2),
+            			rs.getString(3),
+            			rs.getInt(4),
+            			rs.getString(5),
+            			rs.getInt("LOCK_COUNT"));
+            }
+            return merch;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
         return null;
     }
 
