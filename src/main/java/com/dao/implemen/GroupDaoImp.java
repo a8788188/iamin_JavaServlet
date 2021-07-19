@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -209,5 +210,24 @@ public class GroupDaoImp implements GroupDao {
             e.printStackTrace();
         }
         return groupList;
+    }
+
+    @Override
+    public int updateGroupStatus() {
+        int count = 0;
+        System.out.println("updateGroupStatus");
+        String sql = "UPDATE plus_one.group SET GROUP_STATUS = 3 " +
+                     "WHERE CONDITION_TIME < NOW();";
+        
+        try (
+                Connection connection = dataSource.getConnection();
+                PreparedStatement ps = connection.prepareStatement(sql);
+        ) {
+            count = ps.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        
+        return count;
     }
 }

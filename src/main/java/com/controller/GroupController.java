@@ -57,9 +57,12 @@ public class GroupController extends HttpServlet {
         String action = jsonObject.get("action").getAsString();
         System.out.println("action---: " + action);
         
+        // 更新是否有團購已經流標
+        groupAction.updateGroupStatus();
+        
         switch (action) {
         case "getAllByMemberId":
-            // member ID 先用假資料
+            // member ID
             List<Group> groups = groupAction.getAllByMemberId(jsonObject.get("memberId").getAsInt());
             writeText(response, gson.toJson(groups));
             break;

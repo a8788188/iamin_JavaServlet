@@ -15,5 +15,5 @@ public interface MemberOrderDetailsDao {
     
     List<MemberOrderDetails> selectAll();
     
-    List<MemberOrderDetails> selectAllByMemberOrderDaoId(int MemberOrderDaoId);
+    List<MemberOrderDetails> selectAllByMemberOrderIds(int[] MemberOrderIds);
 }

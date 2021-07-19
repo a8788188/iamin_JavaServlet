@@ -5,11 +5,14 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.sql.DataSource;
 
 import com.bean.MemberOrder;
+import com.bean.Merch;
 import com.dao.MemberOrderDao;
 import com.dao.common.ServiceLocator;
 import com.google.firebase.database.Transaction.Result;
@@ -50,8 +53,29 @@ public class MemberOrderDaoImp implements MemberOrderDao {
 
     @Override
     public int update(MemberOrder memberOrder) {
-        // TODO Auto-generated method stub
-        return 0;
+        int count = 0;
+        String sql = "UPDATE plus_one.member_order SET MEMBER_ID = ?, GROUP_ID = ?, PAYENT_METHOD = ?, " +
+                     "TOTAL = ?, RECEIVE_PAYMENT_STATUS = ?, DELIVER_STATUS = ? " +
+                     "WHERE MEMBER_ORDER_ID = ?;";
+        
+        try (
+                Connection connection = dataSource.getConnection();
+                PreparedStatement ps = connection.prepareStatement(sql);
+        ) {
+            ps.setInt(1, memberOrder.getMemberId());
+            ps.setInt(2, memberOrder.getGroupId());
+            ps.setInt(3, memberOrder.getPayentMethod());
+            ps.setInt(4, memberOrder.getTotal());
+            ps.setBoolean(5, memberOrder.isReceivePaymentStatus());
+            ps.setBoolean(6, memberOrder.isDeliverStatus());
+            ps.setInt(7, memberOrder.getMemberOrderId());
+            count = ps.executeUpdate();
+            
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        
+        return count;
     }
 
     @Override
@@ -74,7 +98,40 @@ public class MemberOrderDaoImp implements MemberOrderDao {
 
     @Override
     public List<MemberOrder> selectAllByGroupId(int groupId) {
-        // TODO Auto-generated method stub
-        return null;
+        String sql = "SELECT MEMBER_ORDER_ID, o.MEMBER_ID, GROUP_ID, PAYENT_METHOD, TOTAL, RECEIVE_PAYMENT_STATUS, " +
+                     "DELIVER_STATUS, m.NICKNAME, m.PHONE " +
+                     "FROM plus_one.member_order o JOIN plus_one.member m ON o.MEMBER_ID = m.MEMBER_ID " +
+                     "WHERE GROUP_ID = ? " +
+                     "ORDER BY o.START_TIME DESC;";
+        
+        List<MemberOrder> memberOrders = new ArrayList<>();
+        
+        try (
+                Connection connection = dataSource.getConnection();
+                PreparedStatement ps = connection.prepareStatement(sql);
+        ) {
+            ps.setInt(1, groupId);
+            ResultSet rs = ps.executeQuery();
+            
+            while (rs.next()) {
+                MemberOrder memberOrder = new MemberOrder(
+                        rs.getInt(1),
+                        rs.getInt(2),
+                        rs.getInt(3),
+                        rs.getInt(4),
+                        rs.getInt(5),
+                        rs.getBoolean(6),
+                        rs.getBoolean(7),
+                        rs.getString(8),
+                        rs.getString(9)
+                        );
+                
+                memberOrders.add(memberOrder);
+            }
+            
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return memberOrders;
     }
 }

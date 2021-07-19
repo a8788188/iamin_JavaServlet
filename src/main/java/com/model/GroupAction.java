@@ -22,7 +22,7 @@ import com.dao.implemen.MerchDaoImp;
 public class GroupAction {
     private GroupDao groupDao = new GroupDaoImp();
     private MerchDao merchDao = new MerchDaoImp();
-    private GroupCategoryDao CategoryDao = new GroupCategoryDaoImp();
+    private GroupCategoryDao categoryDao = new GroupCategoryDaoImp();
     private LocationDao locationDao = new LocationDaoImp();
     private GroupListDao groupListDao = new GroupListDaoImp();
 
@@ -47,7 +47,7 @@ public class GroupAction {
      * @return
      */
     public List<GroupCategory> getAllCategory() {
-        return CategoryDao.selectAll();
+        return categoryDao.selectAll();
     }
     
     public int add(Group group, List<Double[]> LatLngs) {
@@ -89,5 +89,9 @@ public class GroupAction {
         locationDao.deleteByGroupId(id);
         
         return result;
+    }
+
+    public int updateGroupStatus() {
+        return groupDao.updateGroupStatus();
     }
 }
