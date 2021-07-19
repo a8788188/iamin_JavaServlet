@@ -14,6 +14,8 @@ public interface MemberOrderDetailsDao {
     MemberOrderDetails selectById(int id);
     
     List<MemberOrderDetails> selectAll();
-    
-    List<MemberOrderDetails> selectAllByMemberOrderDaoId(int MemberOrderDaoId);
+    //單數
+    List<MemberOrderDetails> selectAllByMemberOrderId(int MemberOrderId);
+    //複數
+    List<MemberOrderDetails> selectAllByMemberOrderIds(int[] MemberOrderIds);
 }

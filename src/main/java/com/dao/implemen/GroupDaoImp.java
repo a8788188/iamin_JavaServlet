@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,7 +27,7 @@ public class GroupDaoImp implements GroupDao {
         String sql = "INSERT INTO plus_one.group " + 
                 "(MEMBER_ID, NAME, PROGRESS, GOAL, GROUP_CATEGORY_ID, GROUP_ITEM, CONTACT_NUMBER, PAYMENT_METHOD, " +
                 "GROUP_STATUS, CAUTION, PRIVACY_FLAG, TOTAL_AMOUNT, AMOUNT, CONDITION_COUNT, CONDITION_TIME) " + 
-                "VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
+                "VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
         // 取得自動編號
         String[] generatedColumns = {"GROUP_ID"};
         int insertGroupId = 0;
@@ -210,5 +211,24 @@ public class GroupDaoImp implements GroupDao {
             e.printStackTrace();
         }
         return groupList;
+    }
+
+    @Override
+    public int updateGroupStatus() {
+        int count = 0;
+        System.out.println("updateGroupStatus");
+        String sql = "UPDATE plus_one.group SET GROUP_STATUS = 3 " +
+                     "WHERE CONDITION_TIME < NOW();";
+        
+        try (
+                Connection connection = dataSource.getConnection();
+                PreparedStatement ps = connection.prepareStatement(sql);
+        ) {
+            count = ps.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        
+        return count;
     }
 }
