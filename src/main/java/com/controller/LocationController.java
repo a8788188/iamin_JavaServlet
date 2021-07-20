@@ -12,6 +12,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.bean.Location;
 import com.model.GroupAction;
@@ -28,7 +29,7 @@ public class LocationController extends HttpServlet {
 	    System.out.println("Location doPost - Start");
         request.setCharacterEncoding("UTF-8");
         response.setContentType("application/json; charset=UTF-8");
-        Gson gson = new Gson();
+        Gson gson = new GsonBuilder().setDateFormat("MMM d, yyyy h:mm:ss a").create();
         int groupId;
         List<Location> locations;
         Location location;
