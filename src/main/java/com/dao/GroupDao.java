@@ -10,7 +10,9 @@ public interface GroupDao {
     int updateGroupStatus();
 
     int delete(int id);
-
+    
+    int update(Group group);
+    
     Group selectById(int id);
 
     List<Group> selectAll();

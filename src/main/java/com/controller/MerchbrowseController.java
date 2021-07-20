@@ -108,6 +108,13 @@ public class MerchbrowseController extends HttpServlet {
 				}
 				writeText(response, String.valueOf(count2));
 	        	break;
+	        case "update":
+	        	int countupdate = 0;
+	        	String updateGroupJson = jsonObject.get("updategroup").getAsString();
+				System.out.println("spotJson = " + updateGroupJson);
+				Group updateGroup = gson.fromJson(updateGroupJson, Group.class);
+				countupdate = groupDao.update(updateGroup);
+				writeText(response, String.valueOf(countupdate));
 	        default:
 	            break;
 	        }
