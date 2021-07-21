@@ -39,6 +39,7 @@ public class MemberController extends HttpServlet {
 	private Member member,otherMember;
 	private MemberOrderDetails memberOrderDetails;
 	private String jsonMember,otherMemberJson;
+	private List<MemberOrderDetails> memberOrderDetailsList;
 	private List<MemberOrder> memberOrderList;
 	private List<Member> memberList;
 	private boolean respond;
@@ -61,6 +62,7 @@ public class MemberController extends HttpServlet {
 		count = 0;
 		
 		Gson gson = new GsonBuilder().setDateFormat("MMM d, yyyy h:mm:ss a").create();
+		
 		BufferedReader br = request.getReader();
 		StringBuilder jsonIn = new StringBuilder();
 		String line = null;
@@ -182,11 +184,6 @@ public class MemberController extends HttpServlet {
 			memberOrderList = memberOrderDao.selectAllByMemberId(member.getId());
 			writeRespond(response, gson.toJson(memberOrderList));
 			break;
-			
-		case "getMyMemberOrderDetails":
-//			memberOrderDetails = memberOrderDetailsDao.selectById(id)
-			
-			
 			
 		default:
 			break;

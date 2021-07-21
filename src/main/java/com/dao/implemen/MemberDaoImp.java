@@ -169,7 +169,7 @@ public class MemberDaoImp implements MemberDao {
 						String uUid = rs.getString("UUID");
 						String email = rs.getString("Email");
 						int followCount = rs.getInt("FOLLOW_COUNT");
-						double rating = rs.getDouble("RATING");
+						double rating = getMyFollowCountById(id);
 						String password = rs.getString("PASSWORD");
 						String nickname = rs.getString("NICKNAME") != null ? rs.getString("NICKNAME") : "";
 						String phoneNumber = rs.getString("PHONE") != null ? rs.getString("PHONE") : "";
@@ -470,6 +470,20 @@ public class MemberDaoImp implements MemberDao {
 			e.printStackTrace();
 		}
 		return false;
+	}
+
+	@Override
+	public int getMyFollowCountById(int memberId) {
+		final String sql = "select count(*) from favorite where MEMBER_ID = ?";
+		try (Connection conn = dataSource.getConnection();
+				PreparedStatement pstmt = conn.prepareStatement(sql);){
+			pstmt.setInt(1,memberId);
+			return pstmt.executeUpdate(); 
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return -1;
 	}
 	
 

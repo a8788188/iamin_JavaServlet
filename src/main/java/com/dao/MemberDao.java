@@ -29,7 +29,7 @@ public interface MemberDao {
 	
 	boolean unFollowbyId(int myId, int other_id);
 	
-	
+	int getMyFollowCountById(int memberId);
 	
 	
 	//取得我的錢包明細

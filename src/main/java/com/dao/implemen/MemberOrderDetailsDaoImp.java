@@ -71,10 +71,17 @@ public class MemberOrderDetailsDaoImp implements MemberOrderDetailsDao {
     @Override
     public List<MemberOrderDetails> selectAllByMemberOrderId(int MemberOrderDaoId) {
     	List<MemberOrderDetails> detailsList = new ArrayList<>();
-    	List<Merch> merchs = new ArrayList<Merch>();
     	MerchDao merchDao = new MerchDaoImp();
-    	final String sql = "SELECT * FROM member_order_details WHERE member_order_id = ?";
-        MemberOrderDetails memberOrderDetails = null;
+    	final String sql = "SELECT " + 
+    			"				*  " + 
+    			"FROM  " + 
+    			"	member_order_details mo " + 
+    			"JOIN " + 
+    			"	merch m " + 
+    			"WHERE " + 
+    			"	mo.MERCH_ID = m.MERCH_ID " + 
+    			"AND " + 
+    			"	mo.member_order_id = ?";
         try (
                 Connection connection = dataSource.getConnection();
                 PreparedStatement ps = connection.prepareStatement(sql);
@@ -83,12 +90,12 @@ public class MemberOrderDetailsDaoImp implements MemberOrderDetailsDao {
         	ResultSet rs = ps.executeQuery();
         	while(rs.next()) {
         		
-        		
-        		memberOrderDetails = new MemberOrderDetails(rs.getInt(1), 
+        		MemberOrderDetails  memberOrderDetails = new MemberOrderDetails(rs.getInt(1), 
         													rs.getInt(2), 
 							        						rs.getInt(3), 
 							        						rs.getInt(4), 
-							        						rs.getInt(5));
+							        						rs.getInt(5),
+							        						merchDao.selectById(rs.getInt("MERCH_ID")));
         		
         		detailsList.add(memberOrderDetails);
         	}
