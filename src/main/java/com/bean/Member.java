@@ -7,8 +7,6 @@ public class Member implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	private static Member memberInstance = null;
-
     private int id;
     private int follow_count;
     private double rating;
