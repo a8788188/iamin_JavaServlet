@@ -7,7 +7,9 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.sql.DataSource;
 
@@ -174,5 +176,40 @@ public class MemberOrderDaoImp implements MemberOrderDao {
         return memberOrders;
     }
 
-	
+    @Override
+    public Map<MemberOrder, String> selectAllAndTokenByGroupId(int groupId) {
+        String sql = "SELECT MEMBER_ORDER_ID, o.MEMBER_ID, GROUP_ID, PAYENT_METHOD, TOTAL, RECEIVE_PAYMENT_STATUS, " +
+                     "DELIVER_STATUS, m.FCM_TOKEN " +
+                     "FROM plus_one.member_order o JOIN plus_one.member m ON o.MEMBER_ID = m.MEMBER_ID " +
+                     "WHERE GROUP_ID = ? " +
+                     "ORDER BY o.START_TIME DESC;";
+        
+        Map<MemberOrder, String> map = new HashMap<>();
+        
+        try (
+                Connection connection = dataSource.getConnection();
+                PreparedStatement ps = connection.prepareStatement(sql);
+        ) {
+            ps.setInt(1, groupId);
+            ResultSet rs = ps.executeQuery();
+            
+            while (rs.next()) {
+                MemberOrder memberOrder = new MemberOrder(
+                        rs.getInt(1),
+                        rs.getInt(2),
+                        rs.getInt(3),
+                        rs.getInt(4),
+                        rs.getInt(5),
+                        rs.getBoolean(6),
+                        rs.getBoolean(7)
+                        );
+                
+                map.put(memberOrder, rs.getString(8));
+            }
+            
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return map;
+    }
 }

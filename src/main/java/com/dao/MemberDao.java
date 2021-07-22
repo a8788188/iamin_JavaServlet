@@ -40,9 +40,8 @@ public interface MemberDao {
 	List<Member> getFollowMember(int member_id);
 	//追蹤賣家功能
 	void follow(int member_id, int member_id_2);
-	
+	// 用GroupId抓取Member (Join member_order)
+	List<Member> selectByGroupId(int groupId);
 	//TEST AREA-------------------------------------------------
 	List<Member> showAllMemberNicknameAndUid(String uUid);
-	
-	
 }

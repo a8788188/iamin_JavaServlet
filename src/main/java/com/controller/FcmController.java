@@ -24,6 +24,7 @@ import com.google.firebase.messaging.MulticastMessage;
 import com.google.firebase.messaging.Notification;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import com.model.FcmAction;
 import com.model.MerchAction;
 
 @WebServlet("/Fcm")
@@ -37,7 +38,7 @@ public class FcmController extends HttpServlet {
     @Override
     public void init() throws ServletException {
         // (測試資料)
-        registrationTokens.add("efkU2I_dSNOIiPaeQ3nnGf:APA91bFrCgy1Ad5tu-GoKQKYtP9j5ZoesJfwzpDpv1oYNnOLXA43gZH7aEcHyEciwQqMNLDV8fU1SugpzvoXzCSfmZK-QqEV_l_52weAqqQnSZKeTNWd-SUO1Y5uiX6iQLUhlmHpxPg2");
+//        registrationTokens.add("efkU2I_dSNOIiPaeQ3nnGf:APA91bFrCgy1Ad5tu-GoKQKYtP9j5ZoesJfwzpDpv1oYNnOLXA43gZH7aEcHyEciwQqMNLDV8fU1SugpzvoXzCSfmZK-QqEV_l_52weAqqQnSZKeTNWd-SUO1Y5uiX6iQLUhlmHpxPg2");
         // 私密金鑰檔案可以儲存在專案以外
         // File file = new File("/path/to/firsebase-java-privateKey.json");
         // 私密金鑰檔案也可以儲存在專案WebContent目錄內，私密金鑰檔名要與程式所指定的檔名相同
@@ -74,7 +75,7 @@ public class FcmController extends HttpServlet {
         // Gson
         JsonObject jsonObject = gson.fromJson(requstStr.toString(), JsonObject.class);
         // action
-        MerchAction merchAction = new MerchAction();
+        FcmAction fcmAction  = new FcmAction();
         String action = jsonObject.get("action").getAsString();
         System.out.println("action---: " + action);
         
@@ -82,8 +83,11 @@ public class FcmController extends HttpServlet {
             case "sendFcmByGroupId":
                 // 取得GroupId
                 groupId = jsonObject.get("groupId").getAsInt();
+                // 取得要推送訊息的類別
+                int paymentSelect = jsonObject.get("GroupPaymentSelect").getAsInt();
                 // 抓取要發推播的Token
-                // registrationTokens = 
+                registrationTokens = fcmAction.getTokensByGroupId(groupId, paymentSelect);
+                System.out.println("registrationTokens: " + registrationTokens);
                 
                 title = jsonObject.get("title").getAsString();
                 body = jsonObject.get("body").getAsString();
