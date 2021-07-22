@@ -7,8 +7,6 @@ public class Member implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	private static Member memberInstance = null;
-
     private int id;
     private int follow_count;
     private double rating;
@@ -28,6 +26,11 @@ public class Member implements Serializable {
     public Member(int id, String uUid){
         this.id = id;
         this.uUId = uUid;
+    }
+    
+    public Member(String uUId, String nickname) {
+    	this.uUId = uUId;
+    	this.nickname = nickname;
     }
 
     public Member(int id,int follow_count, double rating, String nickname) {

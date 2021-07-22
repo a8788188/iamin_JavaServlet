@@ -12,7 +12,9 @@ import javax.sql.DataSource;
 
 import com.bean.MemberOrder;
 import com.bean.MemberOrderDetails;
+import com.bean.Merch;
 import com.dao.MemberOrderDetailsDao;
+import com.dao.MerchDao;
 import com.dao.common.ServiceLocator;
 
 public class MemberOrderDetailsDaoImp implements MemberOrderDetailsDao {
@@ -56,7 +58,7 @@ public class MemberOrderDetailsDaoImp implements MemberOrderDetailsDao {
 
     @Override
     public MemberOrderDetails selectById(int id) {
-        // TODO Auto-generated method stub
+        
         return null;
     }
 
@@ -67,6 +69,44 @@ public class MemberOrderDetailsDaoImp implements MemberOrderDetailsDao {
     }
 
     @Override
+    public List<MemberOrderDetails> selectAllByMemberOrderId(int MemberOrderDaoId) {
+    	List<MemberOrderDetails> detailsList = new ArrayList<>();
+    	MerchDao merchDao = new MerchDaoImp();
+    	final String sql = "SELECT " + 
+    			"				*  " + 
+    			"FROM  " + 
+    			"	member_order_details mo " + 
+    			"JOIN " + 
+    			"	merch m " + 
+    			"WHERE " + 
+    			"	mo.MERCH_ID = m.MERCH_ID " + 
+    			"AND " + 
+    			"	mo.member_order_id = ?";
+        try (
+                Connection connection = dataSource.getConnection();
+                PreparedStatement ps = connection.prepareStatement(sql);
+        ){
+        	ps.setInt(1, MemberOrderDaoId);
+        	ResultSet rs = ps.executeQuery();
+        	while(rs.next()) {
+        		
+        		MemberOrderDetails  memberOrderDetails = new MemberOrderDetails(rs.getInt(1), 
+        													rs.getInt(2), 
+							        						rs.getInt(3), 
+							        						rs.getInt(4), 
+							        						rs.getInt(5),
+							        						merchDao.selectById(rs.getInt("MERCH_ID")));
+        		
+        		detailsList.add(memberOrderDetails);
+        	}
+        	return detailsList;
+        } catch (SQLException e) {
+			e.printStackTrace();
+		}
+    	
+        return null;
+    }
+    
     public List<MemberOrderDetails> selectAllByMemberOrderIds(int[] MemberOrderIds) {
         String sql = 
                 "SELECT MEMBER_ORDER_DETAILS_ID, MEMBER_ORDER_ID, d.MERCH_ID, QUANTITY, FORMAT_TOTAL, m.NAME " +

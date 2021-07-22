@@ -1,5 +1,7 @@
 package com.bean;
 
+import java.util.List;
+
 // 會員訂單
 public class MemberOrder {
     private int memberOrderId;
@@ -9,6 +11,7 @@ public class MemberOrder {
     private int total; // 訂單金額
     private boolean receivePaymentStatus; // 收款狀態
     private boolean deliverStatus; // 發貨狀態
+    private List<MemberOrderDetails> memberOrderDetailsList; //本order的詳細訂單
     // 關聯資料
     private String nickname; // 會員暱稱
     private String phone; // 會員電話
@@ -23,6 +26,17 @@ public class MemberOrder {
         this.total = total;
         this.receivePaymentStatus = receivePaymentStatus;
         this.deliverStatus = deliverStatus;
+    }
+    
+    public MemberOrder(int memberOrderId, int memberId, int groupId, int payentMethod, int total, boolean receivePaymentStatus, boolean deliverStatus, List<MemberOrderDetails> memberOrderDetailsList) {
+        this.memberOrderId = memberOrderId;
+        this.memberId = memberId;
+        this.groupId = groupId;
+        this.payentMethod = payentMethod;
+        this.total = total;
+        this.receivePaymentStatus = receivePaymentStatus;
+        this.deliverStatus = deliverStatus;
+        this.memberOrderDetailsList = memberOrderDetailsList;
     }
 
     public MemberOrder(int memberOrderId, int memberId, int groupId, int payentMethod, int total,
@@ -95,6 +109,15 @@ public class MemberOrder {
         this.deliverStatus = deliverStatus;
     }
 
+	public List<MemberOrderDetails> getMemberOrderDetailsList() {
+		return memberOrderDetailsList;
+	}
+
+	public void setMemberOrderDetailsList(List<MemberOrderDetails> memberOrderDetailsList) {
+		this.memberOrderDetailsList = memberOrderDetailsList;
+	}
+    
+    
     public String getNickname() {
         return nickname;
     }

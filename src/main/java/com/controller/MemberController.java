@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 
@@ -14,28 +15,54 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.dao.MemberDao;
+import com.dao.MemberOrderDao;
+import com.dao.MemberOrderDetailsDao;
 import com.dao.implemen.MemberDaoImp;
+import com.dao.implemen.MemberOrderDaoImp;
+import com.dao.implemen.MemberOrderDetailsDaoImp;
 import com.data.MyWallet;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.bean.Member;
+import com.bean.MemberOrder;
+import com.bean.MemberOrderDetails;
 
 @WebServlet("/memberController")
 public class MemberController extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	private final static String CONTENT_TYPE = "application/json; charset=UTF-8";
 	private MemberDao memberDao = null;
+	private MemberOrderDao memberOrderDao = null;
+	private MemberOrderDetailsDao memberOrderDetailsDao = null;
 	private byte[] image = null;
-	private Member member = null;
-	private String jsonMember;
+	private Member member,otherMember;
+	private MemberOrderDetails memberOrderDetails;
+	private String jsonMember,otherMemberJson;
+	private List<MemberOrderDetails> memberOrderDetailsList;
+	private List<MemberOrder> memberOrderList;
+	private List<Member> memberList;
+	private boolean respond;
 	private int count;
 
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		request.setCharacterEncoding("UTF-8");
 		System.out.println("member doPost - Start");
+		
+		memberDao = new MemberDaoImp();
+		memberOrderDao = new MemberOrderDaoImp();
+		memberOrderDetailsDao = new MemberOrderDetailsDaoImp();
+		
+		memberOrderList = new ArrayList<MemberOrder>();
+		memberList= new ArrayList<Member>();
+		memberOrderDetails = null;
+		member = null;
+		otherMember = null;
+		count = 0;
+		
 		Gson gson = new GsonBuilder().setDateFormat("MMM d, yyyy h:mm:ss a").create();
+		
 		BufferedReader br = request.getReader();
 		StringBuilder jsonIn = new StringBuilder();
 		String line = null;
@@ -47,11 +74,6 @@ public class MemberController extends HttpServlet {
 		System.out.println("input: " + jsonIn);
 		JsonObject jsonObject = gson.fromJson(jsonIn.toString(), JsonObject.class);
 
-		if (memberDao == null) {
-			memberDao = new MemberDaoImp();
-		}
-
-		count = 0;
 		String action = jsonObject.get("action").getAsString();
 		jsonMember = jsonObject.get("member").getAsString();
 		member = gson.fromJson(jsonMember, Member.class);
@@ -102,7 +124,7 @@ public class MemberController extends HttpServlet {
 			//第三方檢查用
 		case "findbyUuid":
 			member = memberDao.findbyUuid(member.getuUId());
-			count = memberDao.updateTokenbyUid(member.getuUId(),member.getFCM_token());
+//			count = memberDao.updateTokenbyUid(member.getuUId(),member.getFCM_token());
 			System.out.println("findbyUuid fcm update: " + count);
 			writeRespond(response, gson.toJson(member));
 			break;	
@@ -136,9 +158,33 @@ public class MemberController extends HttpServlet {
 		
 		case "updateTokenbyUid":
 			count = memberDao.updateTokenbyUid(member.getuUId(),member.getFCM_token());
-			System.out.println("findbyUuid fcm update: " + count);
+			System.out.println("findbyUuid fcm update: " + member.getuUId());
+			break;
+			
+		case "showAllMember":
+			memberList = memberDao.showAllMemberNicknameAndUid(member.getuUId());
+			writeRespond(response, gson.toJson(memberList));
 			break;
 		
+		case "followMember":
+			otherMemberJson = jsonObject.get("otherMember").getAsString();
+			otherMember = gson.fromJson(otherMemberJson, Member.class);
+			respond = memberDao.followbyId(member.getId(), otherMember.getId());
+			System.out.println(respond);
+			break;
+			
+		case "unFollowMember":
+			otherMemberJson = jsonObject.get("otherMember").getAsString();
+			otherMember = gson.fromJson(otherMemberJson, Member.class);
+			respond = memberDao.unFollowbyId(member.getId(), otherMember.getId());
+			System.out.println(respond);
+			break;
+			
+		case "getMyMemberOrder":
+			memberOrderList = memberOrderDao.selectAllByMemberId(member.getId());
+			writeRespond(response, gson.toJson(memberOrderList));
+			break;
+			
 		default:
 			break;
 		}

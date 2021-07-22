@@ -25,6 +25,7 @@ public class Group {
     // 關聯資料
     private String category; // 類別名稱
     private List<Merch> merchs; // 商品列表
+    private List<Location> locations; //團購面交地點列表
 
     public Group(int groupId, int memberId, String name, int progress, int goal, int categoryId, String groupItem,
                  String contactNumber, int paymentMethod, int groupStatus, String caution,
@@ -34,7 +35,7 @@ public class Group {
         this(groupId, memberId, name, progress, goal, categoryId, groupItem,
                 contactNumber, paymentMethod, groupStatus,
                 caution, privacyFlag, totalAmount, amount,
-                conditionCount, conditionTime, null, null);
+                conditionCount, conditionTime, null, null, null);
 
     }
 
@@ -42,27 +43,41 @@ public class Group {
                  String contactNumber, int paymentMethod, int groupStatus, String caution,
                  Boolean privacyFlag, int totalAmount, int amount, int conditionCount,
                  Timestamp conditionTime, String category, List<Merch> merchs) {
-        this.groupId = groupId;
-        this.memberId = memberId;
-        this.name = name;
-        this.progress = progress;
-        this.goal = goal;
-        this.categoryId = categoryId;
-        this.groupItem = groupItem;
-        this.contactNumber = contactNumber;
-        this.paymentMethod = paymentMethod;
-        this.groupStatus = groupStatus;
-        this.caution = caution;
-        this.privacyFlag = privacyFlag;
-        this.totalAmount = totalAmount;
-        this.amount = amount;
-        this.conditionCount = conditionCount;
-        this.conditionTime = conditionTime;
-        this.category = category;
-        this.merchs = merchs;
+    	
+    	this(groupId, memberId, name, progress, goal, categoryId, groupItem,
+                contactNumber, paymentMethod, groupStatus,
+                caution, privacyFlag, totalAmount, amount,
+                conditionCount, conditionTime, category, merchs, null);
     }
+    
 
-    public int getGroupId() {
+    public Group(int groupId, int memberId, String name, int progress, int goal, int categoryId, String groupItem,
+			String contactNumber, int paymentMethod, int groupStatus, String caution, Boolean privacyFlag,
+			int totalAmount, int amount, int conditionCount, Timestamp conditionTime, String category,
+			List<Merch> merchs, List<Location> locations) {
+		super();
+		this.groupId = groupId;
+		this.memberId = memberId;
+		this.name = name;
+		this.progress = progress;
+		this.goal = goal;
+		this.categoryId = categoryId;
+		this.groupItem = groupItem;
+		this.contactNumber = contactNumber;
+		this.paymentMethod = paymentMethod;
+		this.groupStatus = groupStatus;
+		this.caution = caution;
+		this.privacyFlag = privacyFlag;
+		this.totalAmount = totalAmount;
+		this.amount = amount;
+		this.conditionCount = conditionCount;
+		this.conditionTime = conditionTime;
+		this.category = category;
+		this.merchs = merchs;
+		this.locations = locations;
+	}
+
+	public int getGroupId() {
         return groupId;
     }
 
@@ -205,4 +220,13 @@ public class Group {
     public void setMerchs(List<Merch> merchs) {
         this.merchs = merchs;
     }
+
+	public List<Location> getLocations() {
+		return locations;
+	}
+
+	public void setLocations(List<Location> locations) {
+		this.locations = locations;
+	}
+    
 }

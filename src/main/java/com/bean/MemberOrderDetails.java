@@ -1,5 +1,7 @@
 package com.bean;
 
+import java.util.List;
+
 // 會員訂單明細
 public class MemberOrderDetails {
 	private int memberOrderDetailsId; //
@@ -7,6 +9,7 @@ public class MemberOrderDetails {
     private int merchId; // 商品ID
     private int quantity; // 數量
     private int format_total; // 樣式總價
+    private Merch merch;
     // 關聯資料
     private String name; // 商品名稱
 
@@ -18,6 +21,15 @@ public class MemberOrderDetails {
         this.merchId = merchId;
         this.quantity = quantity;
         this.format_total = format_total;
+    }
+    
+    public MemberOrderDetails(int memberOrderDetailsId, int memberOrderId, int merchId, int quantity, int format_total, Merch merch) {
+        this.memberOrderDetailsId = memberOrderDetailsId;
+        this.memberOrderId = memberOrderId;
+        this.merchId = merchId;
+        this.quantity = quantity;
+        this.format_total = format_total;
+        this.merch = merch;
     }
 
     public MemberOrderDetails(int memberOrderDetailsId, int memberOrderId, int merchId, int quantity, int format_total,
@@ -71,6 +83,14 @@ public class MemberOrderDetails {
         this.format_total = format_total;
     }
 
+    public Merch getMerch() {
+        return merch;
+    }
+
+    public void setMerch(Merch merch) {
+        this.merch = merch;}
+    
+    
     public String getName() {
         return name;
     }

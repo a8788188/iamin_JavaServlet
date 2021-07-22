@@ -14,9 +14,12 @@ import java.util.Map;
 import javax.sql.DataSource;
 
 import com.bean.MemberOrder;
+import com.bean.MemberOrderDetails;
 import com.bean.Merch;
 import com.dao.MemberOrderDao;
+import com.dao.MemberOrderDetailsDao;
 import com.dao.common.ServiceLocator;
+import com.data.MyWallet;
 import com.google.firebase.database.Transaction.Result;
 
 public class MemberOrderDaoImp implements MemberOrderDao {
@@ -88,9 +91,45 @@ public class MemberOrderDaoImp implements MemberOrderDao {
 
     @Override
     public MemberOrder selectById(int id) {
-        // TODO Auto-generated method stub
+    	// TODO Auto-generated method stub
         return null;
     }
+    
+    @Override
+	public List<MemberOrder> selectAllByMemberId(int memberId) {
+    	List<MemberOrder> list = new ArrayList<MemberOrder>();
+    	MemberOrderDetailsDao memberOrderDetailsDao = new MemberOrderDetailsDaoImp();
+    	String sql = "SELECT * FROM member_order WHERE member_id = ?";
+        try (
+                Connection connection = dataSource.getConnection();
+                PreparedStatement ps = connection.prepareStatement(sql);
+        ) {
+        	ps.setInt(1, memberId);
+        	ResultSet rs = ps.executeQuery();
+        	while(rs.next()) {
+        		
+        		List<MemberOrderDetails> detailsList = 
+        				memberOrderDetailsDao.selectAllByMemberOrderId(rs.getInt("MEMBER_ORDER_ID"));
+        		
+        		MemberOrder memberOrder = new MemberOrder(
+        										rs.getInt(1), 
+        										rs.getInt(2), 
+        										rs.getInt(3), 
+        										rs.getInt(4), 
+        										rs.getInt(5), 
+        										rs.getBoolean(6), 
+        										rs.getBoolean(7),
+        										detailsList);
+        		
+        		list.add(memberOrder);
+        	}
+        	return list;
+        	
+        } catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
 
     @Override
     public List<MemberOrder> selectAll() {
