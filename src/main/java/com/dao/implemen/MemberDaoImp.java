@@ -479,7 +479,8 @@ public class MemberDaoImp implements MemberDao {
 		try (Connection conn = dataSource.getConnection();
 				PreparedStatement pstmt = conn.prepareStatement(sql);){
 			pstmt.setInt(1,memberId);
-			return pstmt.executeUpdate(); 
+			pstmt.executeQuery();
+			return 1;
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
