@@ -41,6 +41,7 @@ public interface MemberDao {
 	//追蹤賣家功能
 	void follow(int member_id, int member_id_2);
 	
+	int chackfollow(int member_id, int member_id_2);
 	//TEST AREA-------------------------------------------------
 	List<Member> showAllMemberNicknameAndUid(String uUid);
 	

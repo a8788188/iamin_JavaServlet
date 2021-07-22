@@ -141,8 +141,9 @@ public class MemberController extends HttpServlet {
 			
 			//追隨或取消追隨
 		case "follow":
-			int member_id_2 = jsonObject.get("follwer_id").getAsInt();
-			memberDao.follow(member.getId(), member_id_2);
+			int buyer_id = jsonObject.get("buyer_id").getAsInt();
+			int seller_id = jsonObject.get("follwer_id").getAsInt();
+			memberDao.follow(buyer_id, seller_id);
 			break;
 			
 			//取得被追蹤的會員資料
@@ -183,6 +184,14 @@ public class MemberController extends HttpServlet {
 		case "getMyMemberOrder":
 			memberOrderList = memberOrderDao.selectAllByMemberId(member.getId());
 			writeRespond(response, gson.toJson(memberOrderList));
+			break;
+			
+			//追隨或取消追隨
+		case "chackfollow":
+			int buyer_id_chack = jsonObject.get("buyer_id").getAsInt();
+			int seller_id_chack = jsonObject.get("follwer_id").getAsInt();
+			int count2 = memberDao.chackfollow(buyer_id_chack, seller_id_chack);
+			writeRespond(response, String.valueOf(count2));
 			break;
 			
 		default:
