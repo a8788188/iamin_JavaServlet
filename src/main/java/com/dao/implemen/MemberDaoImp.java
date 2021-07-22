@@ -229,6 +229,7 @@ public class MemberDaoImp implements MemberDao {
 			} else {
 				System.out.println("followToggle count Error");
 			}
+			//判斷結果執行
 			try (Connection connection = dataSource.getConnection();
 					PreparedStatement pstmt2 = connection.prepareStatement(sql);) {
 				pstmt2.setInt(1, member_id);
@@ -478,7 +479,8 @@ public class MemberDaoImp implements MemberDao {
 		try (Connection conn = dataSource.getConnection();
 				PreparedStatement pstmt = conn.prepareStatement(sql);){
 			pstmt.setInt(1,memberId);
-			return pstmt.executeUpdate(); 
+			pstmt.executeQuery();
+			return 1;
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

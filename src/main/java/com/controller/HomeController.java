@@ -14,11 +14,14 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.bean.Group;
+import com.bean.Location;
 import com.dao.GroupDao;
 import com.dao.HomedataDao;
+import com.dao.LocationDao;
 import com.dao.MerchDao;
 import com.dao.implemen.GroupDaoImp;
 import com.dao.implemen.HomedataDaoImp;
+import com.dao.implemen.LocationDaoImp;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
@@ -31,6 +34,7 @@ public class HomeController extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	private GroupDao groupDao = null;
 	private HomedataDao homedataDao = null;
+	private LocationDao locationDao = null;
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 	
 	}
@@ -47,6 +51,9 @@ public class HomeController extends HttpServlet {
 			}
 	        if (homedataDao == null) {
 	        	homedataDao = new HomedataDaoImp();
+			}
+	        if (locationDao == null) {
+				locationDao = new LocationDaoImp();
 			}
 	     // 以列為單位讀入 (純文字)
 	        BufferedReader br = request.getReader();
@@ -66,6 +73,11 @@ public class HomeController extends HttpServlet {
 	        switch (action) {
 	        case "getAllGroup":
 	        	groups= groupDao.selectAll();
+	        	for (Group group : groups) {
+					int id = group.getGroupId();
+					List<Location> locations = locationDao.selectAllByGroupId(id);
+					group.setLocations(locations);
+				}
 	        	Gson gson2 = new GsonBuilder().setDateFormat("MMM d, yyyy h:mm:ss a").create();
 	        	writeText(response, gson2.toJson(groups));
 	        	break;
