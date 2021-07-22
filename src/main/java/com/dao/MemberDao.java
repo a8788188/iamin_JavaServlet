@@ -42,8 +42,9 @@ public interface MemberDao {
 	void follow(int member_id, int member_id_2);
 	
 	int chackfollow(int member_id, int member_id_2);
+
+	// 用GroupId抓取Member (Join member_order)
+	List<Member> selectByGroupId(int groupId);
 	//TEST AREA-------------------------------------------------
 	List<Member> showAllMemberNicknameAndUid(String uUid);
-	
-	
 }
