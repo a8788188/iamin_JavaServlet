@@ -229,6 +229,7 @@ public class MemberDaoImp implements MemberDao {
 			} else {
 				System.out.println("followToggle count Error");
 			}
+			//判斷結果執行
 			try (Connection connection = dataSource.getConnection();
 					PreparedStatement pstmt2 = connection.prepareStatement(sql);) {
 				pstmt2.setInt(1, member_id);
