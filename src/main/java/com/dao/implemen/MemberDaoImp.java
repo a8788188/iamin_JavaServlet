@@ -264,7 +264,7 @@ public class MemberDaoImp implements MemberDao {
 				"	WHERE " +
 				"		m.MEMBER_ID = ?" +
 				"		AND " +
-				"		m.DELIVER_STATUS = 2";
+				"		m.DELIVER_STATUS = 0";
 		List<MyWallet> myWalletList = new ArrayList<>();
 		try (Connection connection = dataSource.getConnection();
 				PreparedStatement pstmt = connection.prepareStatement(sql);) {
@@ -483,7 +483,7 @@ public class MemberDaoImp implements MemberDao {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		return -1;
+		return 0;
 	}
 	
 
