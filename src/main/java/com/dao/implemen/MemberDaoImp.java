@@ -251,6 +251,7 @@ public class MemberDaoImp implements MemberDao {
 		final String sql = 
 				"	select  "+ 
 				"	 	m.*," + 
+				"		g.NAME, "+
 				"    	g.GROUP_CATEGORY_ID," +
 				"		c.CATEGORY" +
 				"	from " + 
@@ -280,10 +281,12 @@ public class MemberDaoImp implements MemberDao {
 				Timestamp startTime = rs.getTimestamp("START_TIME");
 				Timestamp updateTime = rs.getTimestamp("UPDATE_TIME");
 				String category = rs.getString("CATEGORY");
+				String groupName = rs.getString("NAME");
 				List<MyWallet> groupDetail = getMyWalletDetail(rs.getInt("GROUP_ID"));
 				
 				myWalletList.add(
 						new MyWallet(group_id,
+									 groupName,
 									 totoalPrice,
 									 deliverStatus,
 									 startTime,
@@ -296,6 +299,61 @@ public class MemberDaoImp implements MemberDao {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
+		return null;
+	}
+	
+	@Override
+	public List<MyWallet> getMyIncome(int member_id) {
+		final String sql = "SELECT " + 
+				"	g.GROUP_ID," + 
+				"	g.NAME, " +	
+				"   c.CATEGORY," + 
+				"	m.* " + 
+				"FROM " + 
+				"	plus_one.group as g " + 
+				"JOIN " + 
+				"	member_order as m " + 
+				"ON " + 
+				"	g.GROUP_ID = m.GROUP_ID " + 
+				"JOIN " + 
+				"	plus_one.GROUP_CATEGORY as c " + 
+				"ON " + 
+				"	c.GROUP_CATEGORY_ID = g.GROUP_CATEGORY_ID " + 
+				"where " + 
+				"	g.MEMBER_ID = ?";
+		List<MyWallet> myWalletList = new ArrayList<>();
+		try (Connection connection = dataSource.getConnection();
+				PreparedStatement pstmt = connection.prepareStatement(sql);){
+			pstmt.setInt(1,member_id);
+			ResultSet rs = pstmt.executeQuery();
+			while(rs.next()) {
+				
+				int group_id = rs.getInt("GROUP_ID");
+				int totoalPrice = rs.getInt("TOTAL");
+				int deliverStatus = rs.getInt("DELIVER_STATUS");
+				Timestamp startTime = rs.getTimestamp("START_TIME");
+				Timestamp updateTime = rs.getTimestamp("UPDATE_TIME");
+				String category = rs.getString("CATEGORY");
+				
+				String groupName = rs.getString("NAME");
+				
+				List<MyWallet> groupDetail = getMyWalletDetail(rs.getInt("GROUP_ID"));
+				
+				myWalletList.add(
+						new MyWallet(group_id,
+									 groupName,
+									 totoalPrice,
+									 deliverStatus,
+									 startTime,
+									 updateTime,
+									 category,
+									 groupDetail));
+			}
+			return myWalletList;
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		System.out.println("Member action -- getMyIncome error");
 		return null;
 	}
 
@@ -327,7 +385,6 @@ public class MemberDaoImp implements MemberDao {
 							new MyWallet(
 										 name,
 										 price));
-//				System.out.println("groupDetails: " + groupDetails);
 			}
 			return groupDetails;
 		} catch (SQLException e) {
@@ -544,7 +601,6 @@ public class MemberDaoImp implements MemberDao {
 		}
 		return 0;
 	}
-	
 
 
 }

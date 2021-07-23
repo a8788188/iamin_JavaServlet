@@ -7,6 +7,7 @@ public class MyWallet {
 
 	private int group_id;
 	private String name;
+	private String groupName;
 	private int price;
 	private int totoalPrice;
 	private int deliverStatus;
@@ -22,9 +23,10 @@ public class MyWallet {
 		this.price = price;
 	}
 
-	public MyWallet(int group_id, int totoalPrice, int deliverStatus, Timestamp startTime,
+	public MyWallet(int group_id, String groupName,int totoalPrice, int deliverStatus, Timestamp startTime,
 			Timestamp updateTime, String category, List<MyWallet> groupDetail) {
 		this.group_id = group_id;
+		this.groupName = groupName;
 		this.totoalPrice = totoalPrice;
 		this.deliverStatus = deliverStatus;
 		this.startTime = startTime;
@@ -105,5 +107,12 @@ public class MyWallet {
 		this.groupDetail = groupDetail;
 	}
 	
+	public String getGroupName() {
+		return groupName;
+	}
+
+	public void setGroupName(String groupName) {
+		this.groupName = groupName;
+	}
 	
 }
