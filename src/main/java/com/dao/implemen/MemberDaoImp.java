@@ -589,6 +589,7 @@ public class MemberDaoImp implements MemberDao {
 
 	@Override
 	public int getMyFollowCountById(int memberId) {
+
 		final String sql = "select count(*) from favorite where MEMBER_ID = ?";
 		try (Connection conn = dataSource.getConnection();
 				PreparedStatement pstmt = conn.prepareStatement(sql);){
@@ -601,6 +602,24 @@ public class MemberDaoImp implements MemberDao {
 		}
 		return 0;
 	}
-
+	
+	@Override
+	public int chackfollow(int member_id, int member_id_2) {
+		String sql = "select count(*) from FAVORITE where MEMBER_ID = ? and MEMBER_ID_2 = ?";
+		try (Connection conn = dataSource.getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql);) {
+			pstmt.setInt(1, member_id);
+			pstmt.setInt(2, member_id_2);
+			ResultSet rs = pstmt.executeQuery();
+			int number = 0;
+			while (rs.next()) {
+				number = rs.getInt("count(*)");
+			}
+			return number;
+		}catch (Exception e) {
+			e.printStackTrace();
+		}
+		return 0;
+	}
+	
 
 }
