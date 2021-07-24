@@ -169,8 +169,8 @@ public class MemberDaoImp implements MemberDao {
 					if (rs.next()) {
 						String uUid = rs.getString("UUID");
 						String email = rs.getString("Email");
-						int followCount = rs.getInt("FOLLOW_COUNT");
-						double rating = getMyFollowCountById(id);
+						int followCount = getMyFollowCountById(id);
+						double rating = rs.getDouble("RATING");
 						String password = rs.getString("PASSWORD");
 						String nickname = rs.getString("NICKNAME") != null ? rs.getString("NICKNAME") : "";
 						String phoneNumber = rs.getString("PHONE") != null ? rs.getString("PHONE") : "";
@@ -253,21 +253,24 @@ public class MemberDaoImp implements MemberDao {
 				"	 	m.*," + 
 				"		g.NAME, "+
 				"    	g.GROUP_CATEGORY_ID," +
-				"		c.CATEGORY" +
+				"		c.CATEGORY, " +
+				"		od.QUANTITY "+
 				"	from " + 
 				"		plus_one.MEMBER_ORDER as m " + 
-				"	left join" + 
+				"	join" + 
 				"		plus_one.GROUP as g" + 
 				"	on " +
 				"		m.GROUP_ID = g.GROUP_ID" + 
-				"	left join " + 
+				"	join " + 
 				"		plus_one.GROUP_CATEGORY as c " + 
-				"		ON " +
+				"	on " +
 				"		g.GROUP_CATEGORY_ID = c.GROUP_CATEGORY_ID " + 
-				"	WHERE " +
-				"		m.MEMBER_ID = ?" +
-				"		AND " +
-				"		m.DELIVER_STATUS = 0";
+				"	join "+
+				"		member_order_details as od "+
+				"	on "+
+				"		od.member_order_id = m.member_order_id "+	
+				"	where " +
+				"		m.MEMBER_ID = ?";
 		List<MyWallet> myWalletList = new ArrayList<>();
 		try (Connection connection = dataSource.getConnection();
 				PreparedStatement pstmt = connection.prepareStatement(sql);) {
@@ -278,6 +281,7 @@ public class MemberDaoImp implements MemberDao {
 				int group_id = rs.getInt("GROUP_ID");
 				int totoalPrice = rs.getInt("TOTAL");
 				int deliverStatus = rs.getInt("DELIVER_STATUS");
+				int quantity = rs.getInt("QUANTITY");
 				Timestamp startTime = rs.getTimestamp("START_TIME");
 				Timestamp updateTime = rs.getTimestamp("UPDATE_TIME");
 				String category = rs.getString("CATEGORY");
@@ -289,6 +293,7 @@ public class MemberDaoImp implements MemberDao {
 									 groupName,
 									 totoalPrice,
 									 deliverStatus,
+									 quantity,
 									 startTime,
 									 updateTime,
 									 category,
@@ -308,6 +313,7 @@ public class MemberDaoImp implements MemberDao {
 				"	g.GROUP_ID," + 
 				"	g.NAME, " +	
 				"   c.CATEGORY," + 
+				"	od.QUANTITY, " +
 				"	m.* " + 
 				"FROM " + 
 				"	plus_one.group as g " + 
@@ -319,7 +325,11 @@ public class MemberDaoImp implements MemberDao {
 				"	plus_one.GROUP_CATEGORY as c " + 
 				"ON " + 
 				"	c.GROUP_CATEGORY_ID = g.GROUP_CATEGORY_ID " + 
-				"where " + 
+				"JOIN " + 
+				"	plus_one.member_order_details as od " + 
+				"ON " + 
+				"	od.member_order_id = m.MEMBER_ORDER_ID " +
+				"WHERE " + 
 				"	g.MEMBER_ID = ?";
 		List<MyWallet> myWalletList = new ArrayList<>();
 		try (Connection connection = dataSource.getConnection();
@@ -329,8 +339,9 @@ public class MemberDaoImp implements MemberDao {
 			while(rs.next()) {
 				
 				int group_id = rs.getInt("GROUP_ID");
-				int totoalPrice = rs.getInt("TOTAL");
+				int totalPrice = rs.getInt("TOTAL");
 				int deliverStatus = rs.getInt("DELIVER_STATUS");
+				int quantity = rs.getInt("QUANTITY");
 				Timestamp startTime = rs.getTimestamp("START_TIME");
 				Timestamp updateTime = rs.getTimestamp("UPDATE_TIME");
 				String category = rs.getString("CATEGORY");
@@ -342,8 +353,9 @@ public class MemberDaoImp implements MemberDao {
 				myWalletList.add(
 						new MyWallet(group_id,
 									 groupName,
-									 totoalPrice,
+									 totalPrice,
 									 deliverStatus,
+									 quantity,
 									 startTime,
 									 updateTime,
 									 category,
@@ -424,7 +436,7 @@ public class MemberDaoImp implements MemberDao {
 						int id = rs.getInt("MEMBER_ID");
 						String uId = rs.getString("UUID");
 						String email = rs.getString("Email");
-						int followCount = rs.getInt("FOLLOW_COUNT");
+						int followCount = getMyFollowCountById(rs.getInt("MEMBER_ID"));
 						double rating = rs.getDouble("RATING");
 						String password = rs.getString("PASSWORD");
 						String nickname = rs.getString("NICKNAME") != null ? rs.getString("NICKNAME") : "";
@@ -579,6 +591,7 @@ public class MemberDaoImp implements MemberDao {
 			pstmt.setInt(1, myId);
 			pstmt.setInt(2, other_id);
 			pstmt.executeUpdate();
+			System.out.println("member: " + other_id + "unfollowed ");
 			return true;
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
@@ -589,13 +602,16 @@ public class MemberDaoImp implements MemberDao {
 
 	@Override
 	public int getMyFollowCountById(int memberId) {
-
-		final String sql = "select count(*) from favorite where MEMBER_ID = ?";
+		final String sql = "select count(*) from favorite where MEMBER_ID_2 = ?";
+		int count = 0;
 		try (Connection conn = dataSource.getConnection();
 				PreparedStatement pstmt = conn.prepareStatement(sql);){
 			pstmt.setInt(1,memberId);
-			pstmt.executeQuery();
-			return 1;
+			ResultSet rs = pstmt.executeQuery();
+			while(rs.next()) {
+				count = rs.getInt(1);
+			}
+			return count;
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

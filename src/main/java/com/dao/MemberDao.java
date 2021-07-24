@@ -31,8 +31,6 @@ public interface MemberDao {
 	
 	int getMyFollowCountById(int memberId);
 	
-	
-	
 	//取得我的支出
 	List<MyWallet> getMyWallet(int member_id);
 	//取得我的收入
