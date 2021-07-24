@@ -6,6 +6,8 @@ import com.bean.Group;
 
 public interface GroupDao {
     int insert(Group group);
+    
+    int updateGroupStatus();
 
     int delete(int id);
     

@@ -1,6 +1,7 @@
 package com.dao;
 
 import java.util.List;
+import java.util.Map;
 
 import com.bean.MemberOrder;
 
@@ -14,7 +15,11 @@ public interface MemberOrderDao {
     
     MemberOrder selectById(int id);
     
+    List<MemberOrder> selectAllByMemberId(int memberId);
+    
     List<MemberOrder> selectAll();
     
     List<MemberOrder> selectAllByGroupId(int groupId);
+    
+    Map<MemberOrder, String> selectAllAndTokenByGroupId(int groupId);
 }

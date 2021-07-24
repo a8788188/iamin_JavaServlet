@@ -13,6 +13,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
 import com.bean.Group;
@@ -32,7 +33,7 @@ public class GroupController extends HttpServlet {
 	    System.out.println("Group doPost - Start");
         request.setCharacterEncoding("UTF-8");
         response.setContentType("application/json; charset=UTF-8");
-        Gson gson = new Gson();
+        Gson gson = new GsonBuilder().setDateFormat("MMM d, yyyy h:mm:ss a").create();
         Type listType;
         String groupJson;
         Group group;
@@ -57,9 +58,12 @@ public class GroupController extends HttpServlet {
         String action = jsonObject.get("action").getAsString();
         System.out.println("action---: " + action);
         
+        // 更新是否有團購已經流標
+        groupAction.updateGroupStatus();
+        
         switch (action) {
         case "getAllByMemberId":
-            // member ID 先用假資料
+            // member ID
             List<Group> groups = groupAction.getAllByMemberId(jsonObject.get("memberId").getAsInt());
             writeText(response, gson.toJson(groups));
             break;

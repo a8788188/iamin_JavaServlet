@@ -11,6 +11,7 @@ import java.util.List;
 import javax.sql.DataSource;
 
 import com.bean.Member;
+import com.bean.MemberOrder;
 import com.dao.MemberDao;
 import com.dao.common.ServiceLocator;
 import com.data.MyWallet;
@@ -169,7 +170,7 @@ public class MemberDaoImp implements MemberDao {
 						String uUid = rs.getString("UUID");
 						String email = rs.getString("Email");
 						int followCount = rs.getInt("FOLLOW_COUNT");
-						double rating = rs.getDouble("RATING");
+						double rating = getMyFollowCountById(id);
 						String password = rs.getString("PASSWORD");
 						String nickname = rs.getString("NICKNAME") != null ? rs.getString("NICKNAME") : "";
 						String phoneNumber = rs.getString("PHONE") != null ? rs.getString("PHONE") : "";
@@ -229,6 +230,7 @@ public class MemberDaoImp implements MemberDao {
 			} else {
 				System.out.println("followToggle count Error");
 			}
+			//判斷結果執行
 			try (Connection connection = dataSource.getConnection();
 					PreparedStatement pstmt2 = connection.prepareStatement(sql);) {
 				pstmt2.setInt(1, member_id);
@@ -264,7 +266,7 @@ public class MemberDaoImp implements MemberDao {
 				"	WHERE " +
 				"		m.MEMBER_ID = ?" +
 				"		AND " +
-				"		m.DELIVER_STATUS = 2";
+				"		m.DELIVER_STATUS = 0";
 		List<MyWallet> myWalletList = new ArrayList<>();
 		try (Connection connection = dataSource.getConnection();
 				PreparedStatement pstmt = connection.prepareStatement(sql);) {
@@ -288,7 +290,6 @@ public class MemberDaoImp implements MemberDao {
 									 updateTime,
 									 category,
 									 groupDetail));
-//				System.out.println("myWalletList: " + myWalletList);
 			}
 			
 			return myWalletList;
@@ -345,7 +346,6 @@ public class MemberDaoImp implements MemberDao {
 				ResultSet rs = pstmt.executeQuery();
 				while(rs.next()) {
 					Member followMember = findById(rs.getInt("MEMBER_ID_2"));
-					System.out.println(followMember);
 					memberList.add(followMember);
 				}
 				return memberList;
@@ -418,24 +418,154 @@ public class MemberDaoImp implements MemberDao {
 		return -1;
 	}
 
-//	@Override
-//	public Member findUidbyEmail(Member member) {
-//		final String sql = "select * from MEMBER where EMAIL = ?";
-//		try (Connection conn = dataSource.getConnection();
-//				PreparedStatement pstmt = conn.prepareStatement(sql);){
-//			pstmt.setString(1,member.getEmail());
-//			ResultSet rs = pstmt.executeQuery();
-//			while(rs.next()) {
-//				String uUID = rs.getString("UUID");
-//				member.setuUId(uUID);
-//			}
-//			
-//			return member;
-//		} catch (SQLException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
-//		return null;
-//	}
+    @Override
+    public List<Member> selectByGroupId(int groupId) {
+        String sql = 
+                "SELECT MEMBER_ID, UUID, EMAIL, PASSWORD, NICKNAME, PHONE, IMG, RATING, FOLLOWED_ID, "
+                + "FOLLOW_COUNT, LOGIN_TIME, LOGOUT_TIME, FCM_TOKEN " 
+                + "FROM plus_one.member m JOIN plus_one.member_order o ON m.MEMBER_ID = o.MEMBER_ID "
+                + "WHERE o.GROUP_ID = ?;";
+        
+        List<Member> members = new ArrayList<>();
+        
+        try (
+                Connection connection = dataSource.getConnection();
+                PreparedStatement ps = connection.prepareStatement(sql);
+        ) {
+            ps.setInt(1, groupId);
+            ResultSet rs = ps.executeQuery();
+            
+            while (rs.next()) {
+                int id = rs.getInt("MEMBER_ID");
+                String uId = rs.getString("UUID");
+                String email = rs.getString("Email");
+                int followCount = rs.getInt("FOLLOW_COUNT");
+                double rating = rs.getDouble("RATING");
+                String password = rs.getString("PASSWORD");
+                String nickname = rs.getString("NICKNAME") != null ? rs.getString("NICKNAME") : "";
+                String phoneNumber = rs.getString("PHONE") != null ? rs.getString("PHONE") : "";
+                Timestamp loginTime = rs.getTimestamp("LOGIN_TIME");
+                Timestamp updateTime = rs.getTimestamp("UPDATE_TIME");
+                Timestamp startTime = rs.getTimestamp("START_TIME");
+                Timestamp logoutTime = rs.getTimestamp("LOGOUT_TIME");
+                Timestamp deleteTime = rs.getTimestamp("DELETE_TIME");
+                String FCM_token = rs.getString("FCM_TOKEN");
+                
+                Member member = new Member(id,
+                                    followCount,
+                                    rating,
+                                    uId,
+                                    email,
+                                    password,
+                                    nickname,
+                                    phoneNumber,
+                                    startTime,
+                                    updateTime,
+                                    logoutTime,
+                                    loginTime,
+                                    deleteTime,
+                                    FCM_token);
+                
+                members.add(member);
+            }
+            
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return members;
+    }
+
+	@Override
+	public List<Member> showAllMemberNicknameAndUid(String uUid) {
+		final String sql = "select * from MEMBER where UUID != ?";
+		List<Member> list = new ArrayList<Member>();
+		Member member = null;
+		try (Connection conn = dataSource.getConnection();
+				PreparedStatement pstmt = conn.prepareStatement(sql);) {
+			pstmt.setString(1,uUid);
+			ResultSet rs = pstmt.executeQuery();
+			while(rs.next()) {
+			String uId = rs.getString("MEMBER_ID");
+			String nickname = rs.getString("NICKNAME") != null ? rs.getString("NICKNAME") : "EmptyName";
+			member = new Member(uId, nickname);
+			list.add(member);
+			}
+			return list;
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
 	
+	@Override
+	public boolean followbyId(int myId, int other_id) {
+		final String sql = "insert into FAVORITE (MEMBER_ID,MEMBER_ID_2) values (?,?)";
+		try (Connection conn = dataSource.getConnection();
+				PreparedStatement pstmt = conn.prepareStatement(sql);){
+			pstmt.setInt(1, myId);
+			pstmt.setInt(2, other_id);
+			pstmt.executeUpdate();
+			return true;
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return false;
+	}
+	
+	@Override
+	public boolean unFollowbyId(int myId, int other_id) {
+		final String sql = "delete from FAVORITE where MEMBER_ID = ? and MEMBER_ID_2 = ?";
+		try (Connection conn = dataSource.getConnection();
+				PreparedStatement pstmt = conn.prepareStatement(sql);){
+			pstmt.setInt(1, myId);
+			pstmt.setInt(2, other_id);
+			pstmt.executeUpdate();
+			return true;
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return false;
+	}
+
+	@Override
+	public int getMyFollowCountById(int memberId) {
+
+		final String sql = "select count(*) from favorite where MEMBER_ID = ?";
+		try (Connection conn = dataSource.getConnection();
+				PreparedStatement pstmt = conn.prepareStatement(sql);){
+			pstmt.setInt(1,memberId);
+			pstmt.executeQuery();
+			return 1;
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return 0;
+	}
+
+	
+	
+	@Override
+	public int chackfollow(int member_id, int member_id_2) {
+		String sql = "select count(*) from FAVORITE where MEMBER_ID = ? and MEMBER_ID_2 = ?";
+		try (Connection conn = dataSource.getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql);) {
+			pstmt.setInt(1, member_id);
+			pstmt.setInt(2, member_id_2);
+			ResultSet rs = pstmt.executeQuery();
+			int number = 0;
+			while (rs.next()) {
+				number = rs.getInt("count(*)");
+			}
+			return number;
+		}catch (Exception e) {
+			e.printStackTrace();
+		}
+		return 0;
+	}
+	
+
+
 }
