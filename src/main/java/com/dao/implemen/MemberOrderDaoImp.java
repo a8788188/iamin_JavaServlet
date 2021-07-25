@@ -233,4 +233,25 @@ public class MemberOrderDaoImp implements MemberOrderDao {
         
         return count;
     }
+
+    @Override
+    public int updateReceivePaymentStatus(int memberOrderId, boolean status) {
+        int count = 0;
+        String sql = "UPDATE plus_one.member_order SET RECEIVE_PAYMENT_STATUS = ? " +
+                     "WHERE MEMBER_ORDER_ID = ?;";
+        
+        try (
+                Connection connection = dataSource.getConnection();
+                PreparedStatement ps = connection.prepareStatement(sql);
+        ) {
+            ps.setBoolean(1, status);
+            ps.setInt(2, memberOrderId);
+            count = ps.executeUpdate();
+            
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        
+        return count;
+    }
 }
