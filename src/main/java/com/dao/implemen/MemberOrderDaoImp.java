@@ -99,7 +99,18 @@ public class MemberOrderDaoImp implements MemberOrderDao {
 	public List<MemberOrder> selectAllByMemberId(int memberId) {
     	List<MemberOrder> list = new ArrayList<MemberOrder>();
     	MemberOrderDetailsDao memberOrderDetailsDao = new MemberOrderDetailsDaoImp();
-    	String sql = "SELECT * FROM member_order WHERE member_id = ?";
+    	String sql = "SELECT " + 
+    			"	 m.*, " + 
+    			"    g.NAME, " +
+    			"	 g.GROUP_STATUS " +
+    			"FROM " + 
+    			"	plus_one.member_order as m " + 
+    			"JOIN " + 
+    			"	plus_one.group as g " + 
+    			"ON " + 
+    			"	m.group_id = g.group_id " + 
+    			"where " + 
+    			"	m.member_id = ?";
         try (
                 Connection connection = dataSource.getConnection();
                 PreparedStatement ps = connection.prepareStatement(sql);
@@ -119,6 +130,8 @@ public class MemberOrderDaoImp implements MemberOrderDao {
         										rs.getInt(5), 
         										rs.getBoolean(6), 
         										rs.getBoolean(7),
+        										rs.getString("NAME"),
+        										rs.getInt("GROUP_STATUS"),
         										detailsList);
         		
         		list.add(memberOrder);

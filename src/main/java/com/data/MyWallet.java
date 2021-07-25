@@ -7,9 +7,11 @@ public class MyWallet {
 
 	private int group_id;
 	private String name;
+	private String groupName;
 	private int price;
-	private int totoalPrice;
+	private int totalPrice;
 	private int deliverStatus;
+	private int quantity;
 	private Timestamp startTime;
 	private Timestamp updateTime;
 	private String category;
@@ -22,11 +24,13 @@ public class MyWallet {
 		this.price = price;
 	}
 
-	public MyWallet(int group_id, int totoalPrice, int deliverStatus, Timestamp startTime,
+	public MyWallet(int group_id, String groupName,int totalPrice, int deliverStatus,int quantity, Timestamp startTime,
 			Timestamp updateTime, String category, List<MyWallet> groupDetail) {
 		this.group_id = group_id;
-		this.totoalPrice = totoalPrice;
+		this.groupName = groupName;
+		this.totalPrice = totalPrice;
 		this.deliverStatus = deliverStatus;
+		this.quantity = quantity;
 		this.startTime = startTime;
 		this.updateTime = updateTime;
 		this.category = category;
@@ -57,12 +61,12 @@ public class MyWallet {
 		this.price = price;
 	}
 
-	public int getTotoalPrice() {
-		return totoalPrice;
+	public int getTotalPrice() {
+		return totalPrice;
 	}
 
-	public void setTotoalPrice(int totoalPrice) {
-		this.totoalPrice = totoalPrice;
+	public void setTotalPrice(int totalPrice) {
+		this.totalPrice = totalPrice;
 	}
 
 	public int getDeliverStatus() {
@@ -103,6 +107,22 @@ public class MyWallet {
 
 	public void setGroupDetail(List<MyWallet> groupDetail) {
 		this.groupDetail = groupDetail;
+	}
+	
+	public String getGroupName() {
+		return groupName;
+	}
+
+	public void setGroupName(String groupName) {
+		this.groupName = groupName;
+	}
+
+	public int getQuantity() {
+		return quantity;
+	}
+
+	public void setQuantity(int quantity) {
+		this.quantity = quantity;
 	}
 	
 	
