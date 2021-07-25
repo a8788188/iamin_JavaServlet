@@ -35,4 +35,8 @@ public class PaymentInformationAction {
         }
         return result;
     }
+    
+    public int updateDeliverStatus(int memberOrderId, boolean status) {
+        return memberOrderDao.updateDeliverStatus(memberOrderId, status);
+    }
 }
