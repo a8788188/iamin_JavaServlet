@@ -103,6 +103,13 @@ public class PaymentInformationController extends HttpServlet {
                 count = paymentInformationAction.updates(memberOrders);
                 writeText(response, gson.toJson(count));
                 break;
+            case "updateDeliverStatus":
+                // 
+                int memberOrderId = jsonObject.get("memberOderId").getAsInt();
+                boolean status = jsonObject.get("status").getAsBoolean();
+                count = paymentInformationAction.updateDeliverStatus(memberOrderId, status);
+                writeText(response, gson.toJson(count));
+                break;
             default:
                 break;
         }
