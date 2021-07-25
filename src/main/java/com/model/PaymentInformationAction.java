@@ -32,11 +32,17 @@ public class PaymentInformationAction {
         int result = -1;
         for (MemberOrder memberOrder : memberOrders) {
             result = memberOrderDao.update(memberOrder);
+            if (memberOrder.isDeliverStatus()) {
+                result = memberOrderDao.updateReceivePaymentStatus(memberOrder.getMemberOrderId(), true);
+            }
         }
         return result;
     }
     
     public int updateDeliverStatus(int memberOrderId, boolean status) {
-        return memberOrderDao.updateDeliverStatus(memberOrderId, status);
+        int result = -1;
+        result = memberOrderDao.updateDeliverStatus(memberOrderId, status);
+        result = memberOrderDao.updateReceivePaymentStatus(memberOrderId, true);
+        return result;
     }
 }

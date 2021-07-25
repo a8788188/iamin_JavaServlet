@@ -24,4 +24,6 @@ public interface MemberOrderDao {
     Map<MemberOrder, String> selectAllAndTokenByGroupId(int groupId);
     
     int updateDeliverStatus(int memberOrderId, boolean status);
+
+    int updateReceivePaymentStatus(int memberOrderId, boolean status);
 }
