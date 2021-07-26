@@ -636,6 +636,20 @@ public class MemberDaoImp implements MemberDao {
 		}
 		return 0;
 	}
+
+	@Override
+	public int updateRatingById(Member member) {
+		String sql = "UPDATE member SET rating = ? WHERE member_id = ?";
+		try (Connection conn = dataSource.getConnection(); 
+				PreparedStatement pstmt = conn.prepareStatement(sql);) {
+			pstmt.setDouble(1, member.getRating());
+			pstmt.setInt(2, member.getId());
+			return pstmt.executeUpdate();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return -1;
+	}
 	
 
 }
