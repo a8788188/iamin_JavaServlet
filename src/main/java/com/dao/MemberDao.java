@@ -31,9 +31,10 @@ public interface MemberDao {
 	
 	int getMyFollowCountById(int memberId);
 	
-	
-	//取得我的錢包明細
+	//取得我的支出
 	List<MyWallet> getMyWallet(int member_id);
+	//取得我的收入
+	List<MyWallet> getMyIncome(int member_id);
 	//點擊圓餅圖後出現的細項 需要團購發起人id
 	List<MyWallet> getMyWalletDetail(int group_id);
 	//取得追蹤者清單

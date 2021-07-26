@@ -58,7 +58,34 @@ public class MemberOrderDetailsDaoImp implements MemberOrderDetailsDao {
 
     @Override
     public MemberOrderDetails selectById(int id) {
-        
+        final String sql = "SELECT " + 
+        		"	od.* " + 
+        		"FROM " + 
+        		"	member_order_details as od " + 
+        		"JOIN " + 
+        		"	member_order as o " + 
+        		"ON " + 
+        		"	o.MEMBER_ORDER_ID = od.MEMBER_ORDER_ID " + 
+        		"WHERE MEMBER_ID = ?";
+        try (
+                Connection connection = dataSource.getConnection();
+                PreparedStatement ps = connection.prepareStatement(sql);
+        ){
+        	ps.setInt(1,id);
+        	ResultSet rs = ps.executeQuery();
+        	while(rs.next()) {
+        		MemberOrderDetails memberOrderDetails = new MemberOrderDetails(rs.getInt(1),
+        																		rs.getInt(2),
+        																		rs.getInt(3),
+        																		rs.getInt(4), 
+        																		rs.getInt(5));
+        	}
+        } catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+    	
+    	
         return null;
     }
 
