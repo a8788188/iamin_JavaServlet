@@ -3,6 +3,7 @@ package com.controller;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.servlet.ServletException;
@@ -39,6 +40,7 @@ public class RatingController extends HttpServlet {
 	        Gson gson = new GsonBuilder().setDateFormat("MMM d, yyyy h:mm:ss a").create();
 	        // 回傳結果
 	        int count = 0;
+	        List<Rating> ratings = new ArrayList<Rating>();
 	        
 	        if (ratingDao == null) {
 	        	ratingDao = new RatingDaoImp();
@@ -62,7 +64,7 @@ public class RatingController extends HttpServlet {
 	        System.out.println("action---: " + action);
 	        
 	        switch (action) {
-	        case "insertratingAndupdatamember":
+	        case "insertRatingAndUpdateMember":
 	        	String ratingJson = jsonObject.get("rating").getAsString();
 				System.out.println("spotJson = " + ratingJson);
 				Rating rating = gson.fromJson(ratingJson, Rating.class);
@@ -78,6 +80,13 @@ public class RatingController extends HttpServlet {
 				
 				memberDao.update(member, null);
 				writeText(response, String.valueOf(count));
+	        	break;
+	        
+	        case "getAllRatingByMemberId":
+	        	String memberIdJson = jsonObject.get("member_id").getAsString();
+	        	System.out.println("memberIdJson = " + memberIdJson);
+	        	ratings = ratingDao.getAllRatingByMemberId(Integer.valueOf(memberIdJson));
+	        	writeText(response, gson.toJson(ratings));
 	        	break;
 	        }
 	}
