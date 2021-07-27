@@ -20,6 +20,7 @@ import com.dao.MemberOrderDetailsDao;
 import com.dao.implemen.MemberDaoImp;
 import com.dao.implemen.MemberOrderDaoImp;
 import com.dao.implemen.MemberOrderDetailsDaoImp;
+import com.data.MyIncome;
 import com.data.MyWallet;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -155,6 +156,11 @@ public class MemberController extends HttpServlet {
 		case "getMyWallet":
 			List<MyWallet> myWalletList = memberDao.getMyWallet(member.getId());
 			writeRespond(response, gson.toJson(myWalletList));
+			break;
+		
+		case "getMyIncome":
+			List<MyIncome> myIncomes = memberDao.getMyIncome(member.getId());
+			writeRespond(response, gson.toJson(myIncomes));
 			break;
 		
 		case "updateTokenbyUid":
