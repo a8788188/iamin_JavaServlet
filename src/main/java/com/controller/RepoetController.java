@@ -72,9 +72,8 @@ public class RepoetController extends HttpServlet {
 			
 		case "reportedmember":
 			List<Integer> reported_ids = reportDao.selectmemberidreport();
-			List<Member> reported_member = null;
+			List<Member> reported_member = new ArrayList<>();
 			for (Integer integer : reported_ids) {
-				reported_member = new ArrayList<>();
 				reported_member.add(memberDao.findById(integer));
 			}
 			writeText(response, gson.toJson(reported_member));
