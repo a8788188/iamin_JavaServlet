@@ -79,6 +79,12 @@ public class RepoetController extends HttpServlet {
 			writeText(response, gson.toJson(reported_member));
 			break;
 			
+		case "membersreport":
+			List<Report> reports = new ArrayList<>();
+			reports = reportDao.selectreportbymemberid(jsonObject.get("reportedid").getAsInt());
+			writeText(response, gson.toJson(reports));
+			break;
+			
 		default:
 			break;
 		}

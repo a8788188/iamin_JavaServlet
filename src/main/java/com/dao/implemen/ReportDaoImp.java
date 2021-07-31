@@ -66,4 +66,29 @@ public class ReportDaoImp implements ReportDao {
 
 	}
 
+	@Override
+	public List<Report> selectreportbymemberid(int id) {
+		List<Report> reports = new ArrayList<>();
+		String sql = "SELECT MEMBER_ID,REPORTED_ID,REPORT_ITEM,REPORT_MESSAGE " + 
+					 "from report " + 
+					 "where REPORTED_ID = ? and DELETE_TIME IS NULL";
+		try (
+                Connection connection = dataSource.getConnection();
+                PreparedStatement ps = connection.prepareStatement(sql);
+        ) {
+			 ps.setInt(1, id);
+			 
+			 ResultSet rs = ps.executeQuery();
+			 while (rs.next()) {
+				Report report = new Report(rs.getInt(1), rs.getInt(2), rs.getString(3), rs.getString(4));
+				reports.add(report);
+			}
+			 
+			 return reports;
+		}catch (SQLException e) {
+            e.printStackTrace();
+            return null;
+        }
+	}
+
 }
