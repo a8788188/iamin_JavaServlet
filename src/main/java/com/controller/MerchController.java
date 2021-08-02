@@ -2,6 +2,7 @@ package com.controller;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Base64;
@@ -35,6 +36,7 @@ public class MerchController extends HttpServlet {
         Gson gson = new Gson();
         String merchJson;
         Merch merch;
+        List<Merch> merchs;
         int id;
         final List<byte[]> imgsTemp = new ArrayList<>();
         // 回傳結果
@@ -58,8 +60,12 @@ public class MerchController extends HttpServlet {
         
         switch (action) {
         case "getAllByMemberId":
-            // member ID 先用假資料
-            List<Merch> merchs = merchAction.getAllByMemberId(jsonObject.get("memberId").getAsInt());
+            merchs = merchAction.getAllByMemberId(jsonObject.get("memberId").getAsInt());
+            writeText(response, gson.toJson(merchs));
+            break;
+            
+        case "getAllByGroupId":
+            merchs = merchAction.getAllByGroupId(jsonObject.get("groupId").getAsInt());
             writeText(response, gson.toJson(merchs));
             break;
             
@@ -104,6 +110,13 @@ public class MerchController extends HttpServlet {
             id = jsonObject.get("id").getAsInt();
             image = merchAction.getMerchImgById(id);
             writeText(response, gson.toJson(image));
+            break;
+        
+        case "getImageForIos":
+            OutputStream os = response.getOutputStream();
+            id = jsonObject.get("id").getAsInt();
+            image = merchAction.getMerchImgByIdForIos(id, jsonObject.get("number").getAsInt());
+            os.write(image);
             break;
             
         case "getImages":

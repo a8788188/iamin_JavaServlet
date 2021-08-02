@@ -59,7 +59,7 @@ public class LocationController extends HttpServlet {
                 break;
             case "update":
                 locationJson = jsonObject.get("location").getAsString();
-                location = gson.fromJson(locationJson, Location.class);
+                location = new GsonBuilder().setDateFormat("MMM d, yyyy h:mm:ss").create().fromJson(locationJson, Location.class);
                 count = locationAction.update(location);
                 writeText(response, String.valueOf(count));
                 break;

@@ -3,6 +3,8 @@ package com.controller;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -10,8 +12,11 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.bean.Member;
 import com.bean.Report;
+import com.dao.MemberDao;
 import com.dao.ReportDao;
+import com.dao.implemen.MemberDaoImp;
 import com.dao.implemen.ReportDaoImp;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -21,6 +26,7 @@ import com.google.gson.JsonObject;
 public class RepoetController extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	private ReportDao reportDao;
+	private MemberDao memberDao;
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
 	}
@@ -36,6 +42,11 @@ public class RepoetController extends HttpServlet {
         if (reportDao == null) {
 			reportDao = new ReportDaoImp();
 		}
+        
+        if (memberDao == null) {
+        	memberDao = new MemberDaoImp();
+		}
+        
         // 以列為單位讀入 (純文字)
         BufferedReader br = request.getReader();
         StringBuilder requstStr = new StringBuilder();
@@ -58,7 +69,22 @@ public class RepoetController extends HttpServlet {
 			count = reportDao.insert(report);
 			writeText(response, gson.toJson(count));
 			break;
-
+			
+		case "reportedmember":
+			List<Integer> reported_ids = reportDao.selectmemberidreport();
+			List<Member> reported_member = new ArrayList<>();
+			for (Integer integer : reported_ids) {
+				reported_member.add(memberDao.findById(integer));
+			}
+			writeText(response, gson.toJson(reported_member));
+			break;
+			
+		case "membersreport":
+			List<Report> reports = new ArrayList<>();
+			reports = reportDao.selectreportbymemberid(jsonObject.get("reportedid").getAsInt());
+			writeText(response, gson.toJson(reports));
+			break;
+			
 		default:
 			break;
 		}

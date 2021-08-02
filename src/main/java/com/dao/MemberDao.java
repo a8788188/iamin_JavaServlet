@@ -16,7 +16,7 @@ public interface MemberDao {
 	
 	int update(Member member,byte[] image);
 	
-	int updateTokenbyUid(String uId,String FCM_token);
+	int updateTokenbyUid(String uId, String FCM_token);
 	
 	int updateRatingById(Member member);
 	
