@@ -3,23 +3,24 @@ package com.bean;
 import java.sql.Timestamp;
 
 public class Rating {
-	
+	private int member_order_id;
 	private int buyer_Id;
 	private int seller_Id;
 	private int order_rating;
 	private String rating_message;
 	private Timestamp start_time; // 建立時間
 	
-	
-	
-	public Rating(int buyer_Id, int seller_Id, int order_rating, String rating_message, Timestamp start_time) {
+	public Rating(int member_order_id, int buyer_Id, int seller_Id, int order_rating, String rating_message,
+			Timestamp start_time) {
 		super();
+		this.member_order_id = member_order_id;
 		this.buyer_Id = buyer_Id;
 		this.seller_Id = seller_Id;
 		this.order_rating = order_rating;
 		this.rating_message = rating_message;
 		this.start_time = start_time;
 	}
+	
 	public int getBuyer_Id() {
 		return buyer_Id;
 	}
@@ -50,7 +51,12 @@ public class Rating {
 	public void setStart_time(Timestamp start_time) {
 		this.start_time = start_time;
 	}
-	
+	public int getMember_order_id() {
+		return member_order_id;
+	}
+	public void setMember_order_id(int member_order_id) {
+		this.member_order_id = member_order_id;
+	}
 	
 
 }

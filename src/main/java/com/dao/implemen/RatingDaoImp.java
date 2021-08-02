@@ -4,6 +4,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.sql.DataSource;
 
@@ -23,16 +25,17 @@ public class RatingDaoImp implements RatingDao {
 	@Override
 	public int insert(Rating rating) {
 		String sql = "INSERT INTO rating\n" + 
-				"(buy_id,seller_id,order_rating,rating_message)\n" + 
-				"VALUES(?, ?, ?, ?);";
+				"(member_order_id,buy_id,seller_id,order_rating,rating_message)\n" + 
+				"VALUES(?, ?, ?, ?, ?);";
 		try (
                 Connection connection = dataSource.getConnection();
                 PreparedStatement ps = connection.prepareStatement(sql);
         ) {
-			ps.setInt(1, rating.getBuyer_Id());
-			ps.setInt(2, rating.getSeller_Id());
-			ps.setInt(3, rating.getOrder_rating());
-			ps.setString(4, rating.getRating_message());
+			ps.setInt(1,rating.getMember_order_id());
+			ps.setInt(2, rating.getBuyer_Id());
+			ps.setInt(3, rating.getSeller_Id());
+			ps.setInt(4, rating.getOrder_rating());
+			ps.setString(5, rating.getRating_message());
 			
 			ps.executeUpdate();
 			return 1;
@@ -88,6 +91,35 @@ public class RatingDaoImp implements RatingDao {
             e.printStackTrace();
             return -1;
         }
+	}
+
+
+	@Override
+	public List<Rating> getAllRatingByMemberId(int buy_id) {
+		String sql = "select * from rating where seller_id = ?";
+		List<Rating> list = new ArrayList<Rating>();
+		try (
+                Connection connection = dataSource.getConnection();
+                PreparedStatement ps = connection.prepareStatement(sql);
+        ){
+			ps.setInt(1, buy_id);
+			ResultSet rs = ps.executeQuery();
+			while(rs.next()){
+				
+				list.add(new Rating(rs.getInt(1), 
+						rs.getInt(2),
+						rs.getInt(3), 
+						rs.getInt(4), 
+						rs.getString(5), 
+						rs.getTimestamp(6)));
+				
+			}
+			return list;
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		System.out.println("Action --> getAllRatingByMemberId Error");
+		return null;
 	}
 
 }
