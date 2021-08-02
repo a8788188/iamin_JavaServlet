@@ -2,6 +2,7 @@ package com.dao;
 
 import java.util.List;
 
+import com.bean.Admin;
 import com.bean.Group;
 import com.bean.Member;
 import com.data.MyIncome;
@@ -34,6 +35,8 @@ public interface MemberDao {
 	boolean unFollowbyId(int myId, int other_id);
 	
 	int getMyFollowCountById(int memberId);
+	
+	Admin adminLogin(Admin admin);
 	
 	//取得我的支出
 	List<MyWallet> getMyWallet(int member_id);

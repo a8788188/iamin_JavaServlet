@@ -10,12 +10,14 @@ import java.util.List;
 
 import javax.sql.DataSource;
 
+import com.bean.Admin;
 import com.bean.Group;
 import com.bean.Member;
 import com.dao.MemberDao;
 import com.dao.common.ServiceLocator;
 import com.data.MyIncome;
 import com.data.MyWallet;
+import com.mysql.cj.protocol.PacketSentTimeHolder;
 
 public class MemberDaoImp implements MemberDao {
 	DataSource dataSource;
@@ -601,6 +603,25 @@ public class MemberDaoImp implements MemberDao {
 			e.printStackTrace();
 		}
 		return -1;
+	}
+
+	@Override
+	public Admin adminLogin(Admin admin) {
+		String sql = "SELECT * from ADMIN where ACCOUNT = ? and PASSWORD = ?";
+		try (Connection conn = dataSource.getConnection(); 
+				PreparedStatement pstmt = conn.prepareStatement(sql);){
+			pstmt.setString(1,admin.getAccount());
+			pstmt.setString(2,admin.getPassword());
+			ResultSet rs = pstmt.executeQuery();
+			while(rs.next()) {
+				admin = new Admin(rs.getInt(1), rs.getString(2), rs.getString(3));
+			}
+			return admin;
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
 	}
 
 }
