@@ -26,6 +26,10 @@ public class GroupAction {
     private LocationDao locationDao = new LocationDaoImp();
     private GroupListDao groupListDao = new GroupListDaoImp();
 
+    public List<Group> getAll() {
+        return groupDao.selectAll();
+    }
+    
     /**
      * 使用會員ID抓取目前此會員開團購的清單
      * @param memberId
@@ -76,6 +80,10 @@ public class GroupAction {
     }
     
     public int deleteById(int id, List<Integer> merchsId) {
+        if (merchsId == null) {
+            // 從 group_list 抓取 Merchs ID
+            merchsId = groupListDao.selectMerchIdByGroupId(id);
+        }
         int result;
         // 刪除團購
         result = groupDao.delete(id);

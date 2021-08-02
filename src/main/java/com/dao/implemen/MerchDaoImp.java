@@ -10,6 +10,7 @@ import java.util.List;
 
 import javax.sql.DataSource;
 
+import com.bean.MemberOrderDetails;
 import com.bean.Merch;
 import com.dao.MerchDao;
 import com.dao.common.ServiceLocator;
@@ -214,7 +215,7 @@ public class MerchDaoImp implements MerchDao{
     @Override
     public int delete(int id) {
         int count = 0;
-        String sql = "DELETE FROM merch WHERE MERCH_ID = ?;";
+        String sql = "UPDATE plus_one.merch SET DELETE_TIME = NOW() WHERE MERCH_ID = ?;";
         
         try (
                 Connection connection = dataSource.getConnection();
@@ -264,7 +265,7 @@ public class MerchDaoImp implements MerchDao{
     @Override
     public List<Merch> selectAllByMemberId(int memberId) {
         String sql = "SELECT MERCH_ID, NAME, PRICE, MERCH_DESC, LOCK_COUNT " 
-                + "FROM merch WHERE MEMBER_ID = ? "
+                + "FROM merch WHERE MEMBER_ID = ? AND DELETE_TIME IS null "
                 + "ORDER BY START_TIME DESC;";
         
         List<Merch> merchList = new ArrayList<>();
@@ -293,6 +294,51 @@ public class MerchDaoImp implements MerchDao{
     }
     
     @Override
+    public List<Merch> selectAllByMerchsId(List<Integer> merchsId) {
+        System.out.println("merchsId: " + merchsId);
+        
+        String sql = "SELECT MERCH_ID, MEMBER_ID, NAME, PRICE, MERCH_DESC, LOCK_COUNT " 
+                + "FROM plus_one.merch WHERE MERCH_ID IN (?) "
+                + "ORDER BY START_TIME DESC;";
+        
+        String in = "";
+        for (int i = 0; i < merchsId.size(); i++) {
+            in = in + merchsId.get(i);
+            if(i < merchsId.size() - 1) {
+                in = in + ", ";
+            }
+        }
+        sql = sql.replace("(?)", "(" + in +")");
+        System.out.println(sql);
+        
+        List<Merch> merchs = new ArrayList<>();
+        
+        try (
+                Connection connection = dataSource.getConnection();
+                PreparedStatement ps = connection.prepareStatement(sql);
+        ) {
+            ResultSet rs = ps.executeQuery();
+            
+            while (rs.next()) {
+                Merch merch = new Merch(
+                        rs.getInt(1),
+                        rs.getInt(2),
+                        rs.getString(3),
+                        rs.getInt(4),
+                        rs.getString(5),
+                        rs.getInt(6)
+                        );
+                
+                merchs.add(merch);
+            }
+            
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return merchs;
+    }
+    
+    @Override
     public byte[] getImage(int id) {
         String sql = "SELECT IMG_1 " 
                 + "FROM merch WHERE MERCH_ID = ?;";
@@ -304,6 +350,34 @@ public class MerchDaoImp implements MerchDao{
                 PreparedStatement ps = connection.prepareStatement(sql);
         ) {
             ps.setInt(1, id);
+            ResultSet rs = ps.executeQuery();
+            
+            while (rs.next()) {
+                if (rs.getBytes(1) != null) {
+                    image = rs.getBytes(1);
+                }
+            }
+            
+        }catch (SQLException e) {
+            e.printStackTrace();
+        }
+        
+        return image;
+    }
+    
+    @Override
+    public byte[] getImage(int id, int number) {
+        String sql = "SELECT IMG_? " 
+                + "FROM merch WHERE MERCH_ID = ?;";
+        
+        byte[] image = null;
+        
+        try (
+                Connection connection = dataSource.getConnection();
+                PreparedStatement ps = connection.prepareStatement(sql);
+        ) {
+            ps.setInt(1, number);
+            ps.setInt(2, id);
             ResultSet rs = ps.executeQuery();
             
             while (rs.next()) {

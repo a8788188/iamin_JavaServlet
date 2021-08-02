@@ -16,8 +16,12 @@ public interface MerchDao {
     List<Merch> selectAll();
     
     List<Merch> selectAllByMemberId(int memberId);
+    
+    List<Merch> selectAllByMerchsId(List<Integer> merchsId);
 
     byte[] getImage(int id);
+    
+    byte[] getImage(int id, int number);
     
     List<byte[]> getImages(int id);
     
