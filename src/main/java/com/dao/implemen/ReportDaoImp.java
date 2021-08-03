@@ -45,10 +45,10 @@ public class ReportDaoImp implements ReportDao {
 	@Override
 	public List<Integer> selectmemberidreport() {
 		List<Integer> reported_member_id = new ArrayList<Integer>();
-		String sql = "SELECT REPORTED_ID " + 
+		String sql = "SELECT REPORTED_MEMBER_ID " + 
 					 "from report " + 
 					 "where DELETE_TIME IS NULL " + 
-					 "group by REPORTED_ID; ";
+					 "group by REPORTED_MEMBER_ID; ";
 		try (
                 Connection connection = dataSource.getConnection();
                 PreparedStatement ps = connection.prepareStatement(sql);
@@ -69,9 +69,9 @@ public class ReportDaoImp implements ReportDao {
 	@Override
 	public List<Report> selectreportbymemberid(int id) {
 		List<Report> reports = new ArrayList<>();
-		String sql = "SELECT MEMBER_ID,REPORTED_ID,REPORT_ITEM,REPORT_MESSAGE " + 
+		String sql = "SELECT REPORT_ID,MEMBER_ID,REPORTED_MEMBER_ID,REPORT_ITEM,REPORT_MESSAGE " + 
 					 "from report " + 
-					 "where REPORTED_ID = ? and DELETE_TIME IS NULL";
+					 "where REPORTED_MEMBER_ID = ? and DELETE_TIME IS NULL";
 		try (
                 Connection connection = dataSource.getConnection();
                 PreparedStatement ps = connection.prepareStatement(sql);
@@ -80,7 +80,7 @@ public class ReportDaoImp implements ReportDao {
 			 
 			 ResultSet rs = ps.executeQuery();
 			 while (rs.next()) {
-				Report report = new Report(rs.getInt(1), rs.getInt(2), rs.getString(3), rs.getString(4));
+				Report report = new Report(rs.getInt(1), rs.getInt(2), rs.getInt(3), rs.getString(4), rs.getString(5));
 				reports.add(report);
 			}
 			 
