@@ -91,4 +91,23 @@ public class ReportDaoImp implements ReportDao {
         }
 	}
 
+	@Override
+	public int deleteByreportid(int id) {
+		int count = 0;
+        String sql = "UPDATE plus_one.report SET DELETE_TIME = NOW() WHERE REPORT_ID = ?;";
+        
+        try (
+                Connection connection = dataSource.getConnection();
+                PreparedStatement ps = connection.prepareStatement(sql);
+        ) {
+            ps.setInt(1, id);
+            count = ps.executeUpdate();
+            
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        
+        return count;
+	}
+
 }
