@@ -17,6 +17,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
 import com.bean.Group;
+import com.bean.GroupBlockade;
 import com.bean.GroupCategory;
 import com.bean.Merch;
 import com.model.GroupAction;
@@ -39,9 +40,11 @@ public class GroupController extends HttpServlet {
         Group group;
         List<Double[]> LatLngs;
         int id;
+        int memberId;
         String merchsIdJson;
         List<Integer> merchsId;
         List<Group> groups;
+        List<GroupBlockade> groupBlockades;
         // 回傳結果
         int count = 0;
         
@@ -105,6 +108,24 @@ public class GroupController extends HttpServlet {
             // DB
             count = groupAction.deleteById(id, merchsId);
             writeText(response, String.valueOf(count));
+            break;
+        case "blockadeById":
+            // 封鎖原因
+            String reason = jsonObject.get("reason").getAsString();
+            String name = jsonObject.get("name").getAsString();
+            memberId = jsonObject.get("memberId").getAsInt();
+            // 團購ID
+            id = jsonObject.get("id").getAsInt();
+            // DB
+            groupAction.insertBlockade(id, memberId, name, reason);
+            count = groupAction.deleteById(id, null);
+            writeText(response, String.valueOf(count));
+            break;
+        case "checkbBlockadeByMemberId":
+            memberId = jsonObject.get("memberId").getAsInt();
+            // DB
+            groupBlockades = groupAction.selectBlockadeByMemberId(memberId);
+            writeText(response, gson.toJson(groupBlockades));
             break;
         default:
             break;
