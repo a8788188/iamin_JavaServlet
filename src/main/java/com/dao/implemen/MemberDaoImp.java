@@ -608,17 +608,17 @@ public class MemberDaoImp implements MemberDao {
 	@Override
 	public Admin adminLogin(Admin admin) {
 		String sql = "SELECT * from ADMIN where ACCOUNT = ? and PASSWORD = ?";
+		Admin admin2 = null;
 		try (Connection conn = dataSource.getConnection(); 
 				PreparedStatement pstmt = conn.prepareStatement(sql);){
 			pstmt.setString(1,admin.getAccount());
 			pstmt.setString(2,admin.getPassword());
 			ResultSet rs = pstmt.executeQuery();
 			while(rs.next()) {
-				admin = new Admin(rs.getInt(1), rs.getString(2), rs.getString(3));
+				admin2 = new Admin(rs.getInt(1), rs.getString(2), rs.getString(3));
 			}
-			return admin;
+			return admin2;
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return null;
