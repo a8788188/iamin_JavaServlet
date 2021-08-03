@@ -78,7 +78,7 @@ public class RatingController extends HttpServlet {
 				//setRating為ratingsum(賣家總分)/ratingcount(賣家總數)
 				member.setRating(ratingsum/ratingcount);
 				
-				memberDao.update(member, null);
+				memberDao.updateRatingById(member);
 				writeText(response, String.valueOf(count));
 	        	break;
 	        

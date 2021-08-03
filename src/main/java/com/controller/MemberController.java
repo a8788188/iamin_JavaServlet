@@ -20,10 +20,12 @@ import com.dao.MemberOrderDetailsDao;
 import com.dao.implemen.MemberDaoImp;
 import com.dao.implemen.MemberOrderDaoImp;
 import com.dao.implemen.MemberOrderDetailsDaoImp;
+import com.data.MyIncome;
 import com.data.MyWallet;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
+import com.bean.Admin;
 import com.bean.Member;
 import com.bean.MemberOrder;
 import com.bean.MemberOrderDetails;
@@ -37,6 +39,7 @@ public class MemberController extends HttpServlet {
 	private MemberOrderDetailsDao memberOrderDetailsDao = null;
 	private byte[] image = null;
 	private Member member,otherMember;
+	private Admin admin;
 	private MemberOrderDetails memberOrderDetails;
 	private String jsonMember,otherMemberJson;
 	private List<MemberOrderDetails> memberOrderDetailsList;
@@ -73,10 +76,15 @@ public class MemberController extends HttpServlet {
 		
 		System.out.println("input: " + jsonIn);
 		JsonObject jsonObject = gson.fromJson(jsonIn.toString(), JsonObject.class);
-
 		String action = jsonObject.get("action").getAsString();
-		jsonMember = jsonObject.get("member").getAsString();
-		member = gson.fromJson(jsonMember, Member.class);
+		
+		if(action.equals("adminLogin")) {
+			jsonMember = jsonObject.get("member").getAsString();
+			admin = gson.fromJson(jsonMember, Admin.class);
+		}else {
+			jsonMember = jsonObject.get("member").getAsString();
+			member = gson.fromJson(jsonMember, Member.class);
+		}
 		System.out.println("action---: " + action);
 		switch (action) {
 			//登入
@@ -157,6 +165,11 @@ public class MemberController extends HttpServlet {
 			writeRespond(response, gson.toJson(myWalletList));
 			break;
 		
+		case "getMyIncome":
+			List<MyIncome> myIncomes = memberDao.getMyIncome(member.getId());
+			writeRespond(response, gson.toJson(myIncomes));
+			break;
+		
 		case "updateTokenbyUid":
 			count = memberDao.updateTokenbyUid(member.getuUId(),member.getFCM_token());
 			System.out.println("findbyUuid fcm update: " + member.getuUId());
@@ -192,6 +205,11 @@ public class MemberController extends HttpServlet {
 			int seller_id_chack = jsonObject.get("follwer_id").getAsInt();
 			int count2 = memberDao.chackfollow(buyer_id_chack, seller_id_chack);
 			writeRespond(response, String.valueOf(count2));
+			break;
+			
+		case "adminLogin":
+			admin = memberDao.adminLogin(admin);
+			writeRespond(response, gson.toJson(admin));
 			break;
 			
 		default:

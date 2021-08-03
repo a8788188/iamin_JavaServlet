@@ -85,6 +85,11 @@ public class RepoetController extends HttpServlet {
 			writeText(response, gson.toJson(reports));
 			break;
 			
+		case "deleteByreportid":
+			count = reportDao.deleteByreportid(jsonObject.get("reportid").getAsInt());
+			writeText(response, gson.toJson(count));
+			break;
+			
 		default:
 			break;
 		}
