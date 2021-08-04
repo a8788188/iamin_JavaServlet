@@ -81,7 +81,7 @@ public class MemberController extends HttpServlet {
 		if(action.equals("adminLogin")) {
 			jsonMember = jsonObject.get("member").getAsString();
 			admin = gson.fromJson(jsonMember, Admin.class);
-		}else {
+		}else{
 			jsonMember = jsonObject.get("member").getAsString();
 			member = gson.fromJson(jsonMember, Member.class);
 		}
@@ -210,6 +210,20 @@ public class MemberController extends HttpServlet {
 		case "adminLogin":
 			admin = memberDao.adminLogin(admin);
 			writeRespond(response, gson.toJson(admin));
+			break;
+			
+		case "selectAllSuspendMember":
+			memberList = memberDao.selectAllSuspendMember();
+			writeRespond(response, gson.toJson(memberList));
+			break;
+			
+		case "RemoveSuspend":
+			memberDao.removeSuspend(member.getId());
+			break;
+			
+		case "ResetPhoneNumberRequest":
+			count = memberDao.resetPhoneNumberRequest(member.getId());
+			writeRespond(response, String.valueOf(count));
 			break;
 			
 		default:

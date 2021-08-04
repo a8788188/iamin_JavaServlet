@@ -624,4 +624,81 @@ public class MemberDaoImp implements MemberDao {
 		return null;
 	}
 
+	@Override
+	public List<Member> selectAllSuspendMember() {
+		String sql = "SELECT * from Member where DELETE_TIME is not NULL";
+		List<Member> memberList = new ArrayList<Member>();
+		try (Connection conn = dataSource.getConnection(); 
+				PreparedStatement pstmt = conn.prepareStatement(sql);){
+			ResultSet rs = pstmt.executeQuery();
+			while(rs.next()) {
+				int id = rs.getInt("MEMBER_ID");
+				String uUid = rs.getString("UUID");
+				String email = rs.getString("Email");
+				int followCount = getMyFollowCountById(id);
+				double rating = rs.getDouble("RATING");
+				String password = rs.getString("PASSWORD");
+				String nickname = rs.getString("NICKNAME") != null ? rs.getString("NICKNAME") : "";
+				String phoneNumber = rs.getString("PHONE") != null ? rs.getString("PHONE") : "";
+				Timestamp loginTime = rs.getTimestamp("LOGIN_TIME");
+				Timestamp updateTime = rs.getTimestamp("UPDATE_TIME");
+				Timestamp startTime = rs.getTimestamp("START_TIME");
+				Timestamp logoutTime = rs.getTimestamp("LOGOUT_TIME");
+				Timestamp deleteTime = rs.getTimestamp("DELETE_TIME");
+				String FCM_token = rs.getString("FCM_TOKEN");
+				
+				
+				memberList.add(new Member(id,
+								 	    followCount,
+								 	    rating,
+								 	    uUid,
+								 	    email,
+								 	    password,
+								 	    nickname,
+								 	    phoneNumber,
+								 	    startTime,
+								 	    updateTime,
+								 	    logoutTime,
+								 	    loginTime,
+								 	    deleteTime,
+								 	    FCM_token));
+			}
+			return memberList;
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return null;
+	}
+
+	@Override
+	public void removeSuspend(int member_id) {
+		String sql = "update MEMBER set DELETE_TIME = ? where MEMBER_ID = ?";
+		try (Connection conn = dataSource.getConnection(); 
+				PreparedStatement pstmt = conn.prepareStatement(sql);){
+			pstmt.setTimestamp(1, null);
+			pstmt.setInt(2, member_id);
+			int affect_row = pstmt.executeUpdate();
+			System.out.println("affect_row: " + affect_row);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	@Override
+	public int resetPhoneNumberRequest(int member_id) {
+		String sql = "insert into RESET_PHONE (MEMBER_ID) values (?)";
+		try (Connection conn = dataSource.getConnection(); 
+				PreparedStatement pstmt = conn.prepareStatement(sql);){
+			pstmt.setInt(1, member_id);
+			pstmt.executeUpdate();
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return -1;
+		}
+		return -2;
+	}
+
 }

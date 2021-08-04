@@ -9,19 +9,21 @@ import com.data.MyIncome;
 import com.data.MyWallet;
 
 public interface MemberDao {
-	
+	//登入
 	Member login(Member member);
-	
+	//註冊
 	Member insert(Member member);
-	
+	//選擇全部被停權
+	List<Member> selectAllSuspendMember();
+	//更新
 	int update(Member member,byte[] image);
-	
+	//更新FCM_TOKEN
 	int updateTokenbyUid(String uId, String FCM_token);
-	
+	//更新評價
 	int updateRatingById(Member member);
-	
+	//刪除（空）
 	void delete(int member_id);
-	
+	//更新時間
 	boolean timeUpdate(int member_id,String column);
 	
 	byte[] getImage(int member_id);
@@ -37,6 +39,10 @@ public interface MemberDao {
 	int getMyFollowCountById(int memberId);
 	
 	Admin adminLogin(Admin admin);
+	
+	void removeSuspend(int member_id);
+	
+	int resetPhoneNumberRequest(int member_id);
 	
 	//取得我的支出
 	List<MyWallet> getMyWallet(int member_id);
