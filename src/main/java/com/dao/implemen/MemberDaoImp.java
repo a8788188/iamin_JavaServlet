@@ -10,11 +10,14 @@ import java.util.List;
 
 import javax.sql.DataSource;
 
+import com.bean.Admin;
+import com.bean.Group;
 import com.bean.Member;
-import com.bean.MemberOrder;
 import com.dao.MemberDao;
 import com.dao.common.ServiceLocator;
+import com.data.MyIncome;
 import com.data.MyWallet;
+import com.mysql.cj.protocol.PacketSentTimeHolder;
 
 public class MemberDaoImp implements MemberDao {
 	DataSource dataSource;
@@ -264,29 +267,38 @@ public class MemberDaoImp implements MemberDao {
 	@Override
 	public List<MyWallet> getMyWallet(int member_id) {
 		//join merch group group_category
-		final String sql = 
-				"	select  "+ 
-				"	 	m.*," + 
-				"		g.NAME, "+
-				"    	g.GROUP_CATEGORY_ID," +
-				"		c.CATEGORY, " +
-				"		od.QUANTITY "+
-				"	from " + 
-				"		plus_one.MEMBER_ORDER as m " + 
-				"	join" + 
-				"		plus_one.GROUP as g" + 
-				"	on " +
-				"		m.GROUP_ID = g.GROUP_ID" + 
-				"	join " + 
-				"		plus_one.GROUP_CATEGORY as c " + 
-				"	on " +
-				"		g.GROUP_CATEGORY_ID = c.GROUP_CATEGORY_ID " + 
-				"	join "+
-				"		member_order_details as od "+
-				"	on "+
-				"		od.member_order_id = m.member_order_id "+	
-				"	where " +
-				"		m.MEMBER_ID = ?";
+		final String sql = "select " + 
+				"	md.MEMBER_ORDER_DETAILS_ID, " + 
+				"	md.MEMBER_ORDER_ID, " + 
+				"	g.NAME, " + 
+				"    gc.CATEGORY, " + 
+				"    m.NAME, "+ 
+				"    m.PRICE, " + 
+				"    md.QUANTITY, " + 
+				"    md.FORMAT_TOTAL, " + 
+				"    m.MERCH_DESC, " + 
+				"    md.UPDATE_TIME " + 
+				"from " + 
+				"    plus_one.member_order_details as md " + 
+				"join " + 
+				"	plus_one.member_order as mo " + 
+				"on " + 
+				"	md.member_order_id = mo.member_order_id " + 
+				"join " + 
+				"	plus_one.merch as m " + 
+				"on " + 
+				"	m.MERCH_ID = md.MERCH_ID " + 
+				"join " + 
+				"	plus_one.group as g " + 
+				"on " + 
+				"	g.GROUP_ID = mo.GROUP_ID " + 
+				"join " + 
+				"	group_category as gc " + 
+				"on " + 
+				"	gc.GROUP_CATEGORY_ID = g.GROUP_CATEGORY_ID " + 
+				"where " + 
+				"	mo.member_id = ?";
+
 		List<MyWallet> myWalletList = new ArrayList<>();
 		try (Connection connection = dataSource.getConnection();
 				PreparedStatement pstmt = connection.prepareStatement(sql);) {
@@ -294,26 +306,18 @@ public class MemberDaoImp implements MemberDao {
 			ResultSet rs = pstmt.executeQuery();
 			while (rs.next()) {
 				
-				int group_id = rs.getInt("GROUP_ID");
-				int totoalPrice = rs.getInt("TOTAL");
-				int deliverStatus = rs.getInt("DELIVER_STATUS");
-				int quantity = rs.getInt("QUANTITY");
-				Timestamp startTime = rs.getTimestamp("START_TIME");
-				Timestamp updateTime = rs.getTimestamp("UPDATE_TIME");
-				String category = rs.getString("CATEGORY");
-				String groupName = rs.getString("NAME");
-				List<MyWallet> groupDetail = getMyWalletDetail(rs.getInt("GROUP_ID"));
+				MyWallet myWallet = new MyWallet(rs.getInt(1),
+						rs.getInt(2),
+						rs.getString(3),
+						rs.getString(4),
+						rs.getString(5),
+						rs.getInt(6), 
+						rs.getInt(7),
+						rs.getInt(8), 
+						rs.getString(9),
+						rs.getTimestamp(10));
 				
-				myWalletList.add(
-						new MyWallet(group_id,
-									 groupName,
-									 totoalPrice,
-									 deliverStatus,
-									 quantity,
-									 startTime,
-									 updateTime,
-									 category,
-									 groupDetail));
+				myWalletList.add(myWallet);
 			}
 			
 			return myWalletList;
@@ -324,60 +328,45 @@ public class MemberDaoImp implements MemberDao {
 	}
 	
 	@Override
-	public List<MyWallet> getMyIncome(int member_id) {
+	public List<MyIncome> getMyIncome(int member_id) {
 		final String sql = "SELECT " + 
-				"	g.GROUP_ID," + 
-				"	g.NAME, " +	
-				"   c.CATEGORY," + 
-				"	od.QUANTITY, " +
-				"	m.* " + 
+				"	 g.GROUP_ID, " + 
+				"    gc.CATEGORY, " + 
+				"    mo.MEMBER_ORDER_ID, " + 
+				"    mo.TOTAL , " + 
+				"    mo.DELIVER_STATUS, " + 
+				"    mo.RECEIVE_PAYMENT_STATUS, " + 
+				"    mo.UPDATE_TIME, " + 
+				"	 g.NAME "+
 				"FROM " + 
 				"	plus_one.group as g " + 
 				"JOIN " + 
-				"	member_order as m " + 
+				"	plus_one.member_order as mo " + 
 				"ON " + 
-				"	g.GROUP_ID = m.GROUP_ID " + 
+				"	g.GROUP_ID = mo.GROUP_ID " + 
 				"JOIN " + 
-				"	plus_one.GROUP_CATEGORY as c " + 
+				"	plus_one.group_category as gc " + 
 				"ON " + 
-				"	c.GROUP_CATEGORY_ID = g.GROUP_CATEGORY_ID " + 
-				"JOIN " + 
-				"	plus_one.member_order_details as od " + 
-				"ON " + 
-				"	od.member_order_id = m.MEMBER_ORDER_ID " +
-				"WHERE " + 
+				"	g.GROUP_CATEGORY_ID = gc.GROUP_CATEGORY_ID " + 
+				"where " + 
 				"	g.MEMBER_ID = ?";
-		List<MyWallet> myWalletList = new ArrayList<>();
+		List<MyIncome> myIncomes = new ArrayList<>();
 		try (Connection connection = dataSource.getConnection();
 				PreparedStatement pstmt = connection.prepareStatement(sql);){
 			pstmt.setInt(1,member_id);
 			ResultSet rs = pstmt.executeQuery();
 			while(rs.next()) {
-				
-				int group_id = rs.getInt("GROUP_ID");
-				int totalPrice = rs.getInt("TOTAL");
-				int deliverStatus = rs.getInt("DELIVER_STATUS");
-				int quantity = rs.getInt("QUANTITY");
-				Timestamp startTime = rs.getTimestamp("START_TIME");
-				Timestamp updateTime = rs.getTimestamp("UPDATE_TIME");
-				String category = rs.getString("CATEGORY");
-				
-				String groupName = rs.getString("NAME");
-				
-				List<MyWallet> groupDetail = getMyWalletDetail(rs.getInt("GROUP_ID"));
-				
-				myWalletList.add(
-						new MyWallet(group_id,
-									 groupName,
-									 totalPrice,
-									 deliverStatus,
-									 quantity,
-									 startTime,
-									 updateTime,
-									 category,
-									 groupDetail));
+				MyIncome myIncome = new MyIncome(rs.getInt(1),
+												rs.getString(2),
+												rs.getInt(3),
+												rs.getInt(4),
+												rs.getBoolean(5),
+												rs.getBoolean(6), 
+												rs.getTimestamp(7),
+												rs.getString(8));
+				myIncomes.add(myIncome);
 			}
-			return myWalletList;
+			return myIncomes;
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -385,41 +374,6 @@ public class MemberDaoImp implements MemberDao {
 		return null;
 	}
 
-	@Override
-	public List<MyWallet> getMyWalletDetail(int group_id) {
-		//取得group底下的merch名稱跟價錢 
-		String sql = 
-			"select " +  
-				"g.GROUP_ID," +
-				"m.NAME," + 
-				"m.PRICE " +
-			"from " + 
-				"plus_one.GROUP_LIST as g " +
-			"right join " + 
-				"plus_one.MERCH as m " +
-			"on " + 
-				"g.MERCH_ID = m.MERCH_ID " +
-			"where " + 
-				"g.GROUP_ID = ?";
-		List<MyWallet> groupDetails = new ArrayList<>();
-		try (Connection conn = dataSource.getConnection();
-				PreparedStatement pstmt = conn.prepareStatement(sql);){
-			pstmt.setInt(1,group_id);
-			ResultSet rs = pstmt.executeQuery();
-			while(rs.next()) {
-				String name = rs.getString("NAME");
-				int price = rs.getInt("PRICE");
-				groupDetails.add(
-							new MyWallet(
-										 name,
-										 price));
-			}
-			return groupDetails;
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-		return null;
-	}
 	
 	@Override
 	public List<Member> getFollowMember(int member_id) {
@@ -652,6 +606,38 @@ public class MemberDaoImp implements MemberDao {
 		}
 		return 0;
 	}
-	
+
+	@Override
+	public int updateRatingById(Member member) {
+		String sql = "UPDATE member SET rating = ? WHERE member_id = ?";
+		try (Connection conn = dataSource.getConnection(); 
+				PreparedStatement pstmt = conn.prepareStatement(sql);) {
+			pstmt.setDouble(1, member.getRating());
+			pstmt.setInt(2, member.getId());
+			return pstmt.executeUpdate();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return -1;
+	}
+
+	@Override
+	public Admin adminLogin(Admin admin) {
+		String sql = "SELECT * from ADMIN where ACCOUNT = ? and PASSWORD = ?";
+		Admin admin2 = null;
+		try (Connection conn = dataSource.getConnection(); 
+				PreparedStatement pstmt = conn.prepareStatement(sql);){
+			pstmt.setString(1,admin.getAccount());
+			pstmt.setString(2,admin.getPassword());
+			ResultSet rs = pstmt.executeQuery();
+			while(rs.next()) {
+				admin2 = new Admin(rs.getInt(1), rs.getString(2), rs.getString(3));
+			}
+			return admin2;
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
 
 }

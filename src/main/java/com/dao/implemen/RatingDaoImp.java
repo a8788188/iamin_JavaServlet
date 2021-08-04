@@ -25,8 +25,8 @@ public class RatingDaoImp implements RatingDao {
 	@Override
 	public int insert(Rating rating) {
 		String sql = "INSERT INTO rating\n" + 
-				"(member_order_id,buy_id,seller_id,order_rating,rating_message)\n" + 
-				"VALUES(?, ?, ?, ?, ?);";
+				"(member_order_id,buy_id,seller_id,order_rating,rating_message,group_name)\n" + 
+				"VALUES(?, ?, ?, ?, ?, ?);";
 		try (
                 Connection connection = dataSource.getConnection();
                 PreparedStatement ps = connection.prepareStatement(sql);
@@ -36,6 +36,7 @@ public class RatingDaoImp implements RatingDao {
 			ps.setInt(3, rating.getSeller_Id());
 			ps.setInt(4, rating.getOrder_rating());
 			ps.setString(5, rating.getRating_message());
+			ps.setString(6,rating.getGroup_name());
 			
 			ps.executeUpdate();
 			return 1;
@@ -60,7 +61,7 @@ public class RatingDaoImp implements RatingDao {
 			
 			ResultSet rs = ps.executeQuery();
 			while (rs.next()) {
-				rs.getInt(1);
+				sum = rs.getInt(1);
 			}
 			return sum;
 		}catch (SQLException e) {
@@ -84,7 +85,7 @@ public class RatingDaoImp implements RatingDao {
 			
 			ResultSet rs = ps.executeQuery();
 			while (rs.next()) {
-				rs.getInt(1);
+				count = rs.getInt(1);
 			}
 			return count;
 		}catch (SQLException e) {
@@ -111,7 +112,8 @@ public class RatingDaoImp implements RatingDao {
 						rs.getInt(3), 
 						rs.getInt(4), 
 						rs.getString(5), 
-						rs.getTimestamp(6)));
+						rs.getTimestamp(6),
+						rs.getString(7)));
 				
 			}
 			return list;

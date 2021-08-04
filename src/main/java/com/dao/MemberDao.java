@@ -2,7 +2,9 @@ package com.dao;
 
 import java.util.List;
 
+import com.bean.Admin;
 import com.bean.Member;
+import com.data.MyIncome;
 import com.data.MyWallet;
 
 public interface MemberDao {
@@ -16,6 +18,8 @@ public interface MemberDao {
 	int updateTokenbyUid(String uId, String FCM_token);
 	
 	int delete(int member_id);
+
+	int updateRatingById(Member member);
 	
 	boolean timeUpdate(int member_id,String column);
 	
@@ -31,12 +35,12 @@ public interface MemberDao {
 	
 	int getMyFollowCountById(int memberId);
 	
+	Admin adminLogin(Admin admin);
+	
 	//取得我的支出
 	List<MyWallet> getMyWallet(int member_id);
 	//取得我的收入
-	List<MyWallet> getMyIncome(int member_id);
-	//點擊圓餅圖後出現的細項 需要團購發起人id
-	List<MyWallet> getMyWalletDetail(int group_id);
+	List<MyIncome> getMyIncome(int member_id);
 	//取得追蹤者清單
 	List<Member> getFollowMember(int member_id);
 	//追蹤賣家功能
@@ -48,4 +52,6 @@ public interface MemberDao {
 	List<Member> selectByGroupId(int groupId);
 	//TEST AREA-------------------------------------------------
 	List<Member> showAllMemberNicknameAndUid(String uUid);
+	
+	
 }
