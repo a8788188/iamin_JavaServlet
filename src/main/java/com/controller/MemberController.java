@@ -214,6 +214,8 @@ public class MemberController extends HttpServlet {
 			ReportDao reportDao = new ReportDaoImp();
 			reportDao.deleteByreportid(jsonObject.get("reportid").getAsInt());
 			writeRespond(response, gson.toJson(count));
+			break;
+			
 		case "adminLogin":
 			admin = memberDao.adminLogin(admin);
 			writeRespond(response, gson.toJson(admin));
