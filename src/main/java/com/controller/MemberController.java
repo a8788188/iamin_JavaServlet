@@ -17,9 +17,11 @@ import javax.servlet.http.HttpServletResponse;
 import com.dao.MemberDao;
 import com.dao.MemberOrderDao;
 import com.dao.MemberOrderDetailsDao;
+import com.dao.ReportDao;
 import com.dao.implemen.MemberDaoImp;
 import com.dao.implemen.MemberOrderDaoImp;
 import com.dao.implemen.MemberOrderDetailsDaoImp;
+import com.dao.implemen.ReportDaoImp;
 import com.data.MyWallet;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -192,6 +194,13 @@ public class MemberController extends HttpServlet {
 			int seller_id_chack = jsonObject.get("follwer_id").getAsInt();
 			int count2 = memberDao.chackfollow(buyer_id_chack, seller_id_chack);
 			writeRespond(response, String.valueOf(count2));
+			break;
+			
+		case "delete":
+			count = memberDao.delete(member.getId());
+			ReportDao reportDao = new ReportDaoImp();
+			reportDao.deleteByreportid(jsonObject.get("reportid").getAsInt());
+			writeRespond(response, gson.toJson(count));
 			break;
 			
 		default:

@@ -137,9 +137,25 @@ public class MemberDaoImp implements MemberDao {
 	}
 
 	@Override
-	public void delete(int id) {
+	public int delete(int id) {
 		
+		int count = 0;
+        String sql = "UPDATE MEMBER SET DELETE_TIME = NOW() WHERE MEMBER_ID = ?;";
+        
+        try (
+                Connection connection = dataSource.getConnection();
+                PreparedStatement ps = connection.prepareStatement(sql);
+        ) {
+            ps.setInt(1, id);
+            count = ps.executeUpdate();
+            
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        
+        return count;
 	}
+
 	
 	@Override
 	public byte[] getImage(int id) {

@@ -15,7 +15,7 @@ public interface MemberDao {
 	
 	int updateTokenbyUid(String uId, String FCM_token);
 	
-	void delete(int member_id);
+	int delete(int member_id);
 	
 	boolean timeUpdate(int member_id,String column);
 	
