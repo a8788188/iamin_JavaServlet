@@ -27,7 +27,9 @@ import com.data.MyWallet;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
+import com.model.GroupAction;
 import com.bean.Admin;
+import com.bean.Group;
 import com.bean.Member;
 import com.bean.MemberOrder;
 import com.bean.MemberOrderDetails;
@@ -49,6 +51,8 @@ public class MemberController extends HttpServlet {
 	private List<Member> memberList;
 	private boolean respond;
 	private int count;
+	// 
+	GroupAction groupAction = new GroupAction();
 
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
@@ -210,9 +214,18 @@ public class MemberController extends HttpServlet {
 			break;
 			
 		case "delete":
+		    // 1
 			count = memberDao.delete(member.getId());
+			// 2
 			ReportDao reportDao = new ReportDaoImp();
 			reportDao.deleteByreportid(jsonObject.get("reportid").getAsInt());
+			// 3. 刪除相關的團購和商品
+			List<Group> groups = new ArrayList<>();
+			groups = groupAction.getAllByMemberId(member.getId());
+			for (Group group : groups) {
+			    groupAction.deleteById(group.getGroupId(), null);
+			}
+			//
 			writeRespond(response, gson.toJson(count));
 			break;
 			
