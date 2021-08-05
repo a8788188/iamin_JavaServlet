@@ -3,7 +3,6 @@ package com.dao;
 import java.util.List;
 
 import com.bean.Admin;
-import com.bean.Group;
 import com.bean.Member;
 import com.data.MyIncome;
 import com.data.MyWallet;
@@ -18,9 +17,9 @@ public interface MemberDao {
 	
 	int updateTokenbyUid(String uId, String FCM_token);
 	
+	int delete(int member_id);
+
 	int updateRatingById(Member member);
-	
-	void delete(int member_id);
 	
 	boolean timeUpdate(int member_id,String column);
 	
