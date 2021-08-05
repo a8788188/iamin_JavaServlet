@@ -13,7 +13,7 @@
     -->
     <!-- 如果執行產生"Public key retrieval is not allowed" 要將連線url的useSSL改為true -->
     <!-- 219.68.160.213 -->
-    <!-- <Resource name="jdbc/iamin_JavaServlet" 
+    <Resource name="jdbc/iamin_JavaServlet" 
     	global="jdbc/iamin_JavaServlet"
         auth="Container"
         type="javax.sql.DataSource" 
@@ -23,9 +23,9 @@
         password="password" 
         maxTotal="20" 
         maxIdle="10" 
-        maxWaitMillis="5000"/> -->
+        maxWaitMillis="5000"/>
         
-        <Resource name="jdbc/iamin_JavaServlet" 
+        <!-- <Resource name="jdbc/iamin_JavaServlet" 
         global="jdbc/iamin_JavaServlet"
         auth="Container"
         type="javax.sql.DataSource" 
@@ -35,5 +35,5 @@
         password="p@ssw0rd" 
         maxTotal="20" 
         maxIdle="10" 
-        maxWaitMillis="5000"/>
+        maxWaitMillis="5000"/> -->
 </Context>
