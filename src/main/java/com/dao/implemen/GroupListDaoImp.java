@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.sql.DataSource;
@@ -48,9 +49,27 @@ public class GroupListDaoImp implements GroupListDao {
     }
 
     @Override
-    public List<Merch> selectMerchIdByGroupId(int id) {
-        // TODO Auto-generated method stub
-        return null;
+    public List<Integer> selectMerchIdByGroupId(int groupId) {
+        String sql = "SELECT MERCH_ID " 
+                + "FROM plus_one.group_list WHERE GROUP_ID = ?;";
+        
+        List<Integer> merchsId = new ArrayList<>();
+        
+        try (
+                Connection connection = dataSource.getConnection();
+                PreparedStatement ps = connection.prepareStatement(sql);
+        ) {
+            ps.setInt(1, groupId);
+            ResultSet rs = ps.executeQuery();
+            
+            while (rs.next()) {
+                merchsId.add(rs.getInt(1));
+            }
+            
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return merchsId;
     }
 
     @Override

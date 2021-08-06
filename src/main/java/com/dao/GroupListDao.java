@@ -9,7 +9,7 @@ public interface GroupListDao {
 
     int delete(int id);
     
-    List<Merch> selectMerchIdByGroupId(int id);
+    List<Integer> selectMerchIdByGroupId(int groupId);
     
     int deleteByGroupId(int groupId);
 }

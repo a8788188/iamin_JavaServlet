@@ -10,11 +10,17 @@ import java.util.List;
 
 import javax.sql.DataSource;
 
+import org.apache.commons.lang3.concurrent.AtomicSafeInitializer;
+
+import com.bean.Admin;
+import com.bean.Group;
 import com.bean.Member;
-import com.bean.MemberOrder;
+import com.bean.ResetPhone;
 import com.dao.MemberDao;
 import com.dao.common.ServiceLocator;
+import com.data.MyIncome;
 import com.data.MyWallet;
+import com.mysql.cj.protocol.PacketSentTimeHolder;
 
 public class MemberDaoImp implements MemberDao {
 	DataSource dataSource;
@@ -137,9 +143,25 @@ public class MemberDaoImp implements MemberDao {
 	}
 
 	@Override
-	public void delete(int id) {
+	public int delete(int id) {
 		
+		int count = 0;
+        String sql = "UPDATE MEMBER SET DELETE_TIME = NOW() WHERE MEMBER_ID = ?;";
+        
+        try (
+                Connection connection = dataSource.getConnection();
+                PreparedStatement ps = connection.prepareStatement(sql);
+        ) {
+            ps.setInt(1, id);
+            count = ps.executeUpdate();
+            
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        
+        return count;
 	}
+
 	
 	@Override
 	public byte[] getImage(int id) {
@@ -248,29 +270,40 @@ public class MemberDaoImp implements MemberDao {
 	@Override
 	public List<MyWallet> getMyWallet(int member_id) {
 		//join merch group group_category
-		final String sql = 
-				"	select  "+ 
-				"	 	m.*," + 
-				"		g.NAME, "+
-				"    	g.GROUP_CATEGORY_ID," +
-				"		c.CATEGORY, " +
-				"		od.QUANTITY "+
-				"	from " + 
-				"		plus_one.MEMBER_ORDER as m " + 
-				"	join" + 
-				"		plus_one.GROUP as g" + 
-				"	on " +
-				"		m.GROUP_ID = g.GROUP_ID" + 
-				"	join " + 
-				"		plus_one.GROUP_CATEGORY as c " + 
-				"	on " +
-				"		g.GROUP_CATEGORY_ID = c.GROUP_CATEGORY_ID " + 
-				"	join "+
-				"		member_order_details as od "+
-				"	on "+
-				"		od.member_order_id = m.member_order_id "+	
-				"	where " +
-				"		m.MEMBER_ID = ?";
+		final String sql = "select " + 
+				"	md.MEMBER_ORDER_DETAILS_ID, " + 
+				"	md.MEMBER_ORDER_ID, " + 
+				"	g.NAME, " + 
+				"    gc.CATEGORY, " + 
+				"    m.NAME, "+ 
+				"    m.PRICE, " + 
+				"    md.QUANTITY, " + 
+				"    md.FORMAT_TOTAL, " + 
+				"    m.MERCH_DESC, " + 
+				"    md.UPDATE_TIME " + 
+				"from " + 
+				"    plus_one.member_order_details as md " + 
+				"join " + 
+				"	plus_one.member_order as mo " + 
+				"on " + 
+				"	md.member_order_id = mo.member_order_id " + 
+				"join " + 
+				"	plus_one.merch as m " + 
+				"on " + 
+				"	m.MERCH_ID = md.MERCH_ID " + 
+				"join " + 
+				"	plus_one.group as g " + 
+				"on " + 
+				"	g.GROUP_ID = mo.GROUP_ID " + 
+				"join " + 
+				"	group_category as gc " + 
+				"on " + 
+				"	gc.GROUP_CATEGORY_ID = g.GROUP_CATEGORY_ID " + 
+				"where " + 
+				"	mo.member_id = ?" +
+				"and" +
+				"	mo.receive_payment_status = 1"	;
+
 		List<MyWallet> myWalletList = new ArrayList<>();
 		try (Connection connection = dataSource.getConnection();
 				PreparedStatement pstmt = connection.prepareStatement(sql);) {
@@ -278,26 +311,18 @@ public class MemberDaoImp implements MemberDao {
 			ResultSet rs = pstmt.executeQuery();
 			while (rs.next()) {
 				
-				int group_id = rs.getInt("GROUP_ID");
-				int totoalPrice = rs.getInt("TOTAL");
-				int deliverStatus = rs.getInt("DELIVER_STATUS");
-				int quantity = rs.getInt("QUANTITY");
-				Timestamp startTime = rs.getTimestamp("START_TIME");
-				Timestamp updateTime = rs.getTimestamp("UPDATE_TIME");
-				String category = rs.getString("CATEGORY");
-				String groupName = rs.getString("NAME");
-				List<MyWallet> groupDetail = getMyWalletDetail(rs.getInt("GROUP_ID"));
+				MyWallet myWallet = new MyWallet(rs.getInt(1),
+						rs.getInt(2),
+						rs.getString(3),
+						rs.getString(4),
+						rs.getString(5),
+						rs.getInt(6), 
+						rs.getInt(7),
+						rs.getInt(8), 
+						rs.getString(9),
+						rs.getTimestamp(10));
 				
-				myWalletList.add(
-						new MyWallet(group_id,
-									 groupName,
-									 totoalPrice,
-									 deliverStatus,
-									 quantity,
-									 startTime,
-									 updateTime,
-									 category,
-									 groupDetail));
+				myWalletList.add(myWallet);
 			}
 			
 			return myWalletList;
@@ -308,60 +333,48 @@ public class MemberDaoImp implements MemberDao {
 	}
 	
 	@Override
-	public List<MyWallet> getMyIncome(int member_id) {
+	public List<MyIncome> getMyIncome(int member_id) {
 		final String sql = "SELECT " + 
-				"	g.GROUP_ID," + 
-				"	g.NAME, " +	
-				"   c.CATEGORY," + 
-				"	od.QUANTITY, " +
-				"	m.* " + 
+				"	 g.GROUP_ID, " + 
+				"    gc.CATEGORY, " + 
+				"    mo.MEMBER_ORDER_ID, " + 
+				"    mo.TOTAL , " + 
+				"    mo.DELIVER_STATUS, " + 
+				"    mo.RECEIVE_PAYMENT_STATUS, " + 
+				"    mo.UPDATE_TIME, " + 
+				"	 g.NAME "+
 				"FROM " + 
 				"	plus_one.group as g " + 
 				"JOIN " + 
-				"	member_order as m " + 
+				"	plus_one.member_order as mo " + 
 				"ON " + 
-				"	g.GROUP_ID = m.GROUP_ID " + 
+				"	g.GROUP_ID = mo.GROUP_ID " + 
 				"JOIN " + 
-				"	plus_one.GROUP_CATEGORY as c " + 
+				"	plus_one.group_category as gc " + 
 				"ON " + 
-				"	c.GROUP_CATEGORY_ID = g.GROUP_CATEGORY_ID " + 
-				"JOIN " + 
-				"	plus_one.member_order_details as od " + 
-				"ON " + 
-				"	od.member_order_id = m.MEMBER_ORDER_ID " +
-				"WHERE " + 
-				"	g.MEMBER_ID = ?";
-		List<MyWallet> myWalletList = new ArrayList<>();
+				"	g.GROUP_CATEGORY_ID = gc.GROUP_CATEGORY_ID " + 
+				"where " + 
+				"	g.MEMBER_ID = ?" +
+				"and"+
+				"	mo.RECEIVE_PAYMENT_STATUS = 1";
+				
+		List<MyIncome> myIncomes = new ArrayList<>();
 		try (Connection connection = dataSource.getConnection();
 				PreparedStatement pstmt = connection.prepareStatement(sql);){
 			pstmt.setInt(1,member_id);
 			ResultSet rs = pstmt.executeQuery();
 			while(rs.next()) {
-				
-				int group_id = rs.getInt("GROUP_ID");
-				int totalPrice = rs.getInt("TOTAL");
-				int deliverStatus = rs.getInt("DELIVER_STATUS");
-				int quantity = rs.getInt("QUANTITY");
-				Timestamp startTime = rs.getTimestamp("START_TIME");
-				Timestamp updateTime = rs.getTimestamp("UPDATE_TIME");
-				String category = rs.getString("CATEGORY");
-				
-				String groupName = rs.getString("NAME");
-				
-				List<MyWallet> groupDetail = getMyWalletDetail(rs.getInt("GROUP_ID"));
-				
-				myWalletList.add(
-						new MyWallet(group_id,
-									 groupName,
-									 totalPrice,
-									 deliverStatus,
-									 quantity,
-									 startTime,
-									 updateTime,
-									 category,
-									 groupDetail));
+				MyIncome myIncome = new MyIncome(rs.getInt(1),
+												rs.getString(2),
+												rs.getInt(3),
+												rs.getInt(4),
+												rs.getBoolean(5),
+												rs.getBoolean(6), 
+												rs.getTimestamp(7),
+												rs.getString(8));
+				myIncomes.add(myIncome);
 			}
-			return myWalletList;
+			return myIncomes;
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -369,41 +382,6 @@ public class MemberDaoImp implements MemberDao {
 		return null;
 	}
 
-	@Override
-	public List<MyWallet> getMyWalletDetail(int group_id) {
-		//取得group底下的merch名稱跟價錢 
-		String sql = 
-			"select " +  
-				"g.GROUP_ID," +
-				"m.NAME," + 
-				"m.PRICE " +
-			"from " + 
-				"plus_one.GROUP_LIST as g " +
-			"right join " + 
-				"plus_one.MERCH as m " +
-			"on " + 
-				"g.MERCH_ID = m.MERCH_ID " +
-			"where " + 
-				"g.GROUP_ID = ?";
-		List<MyWallet> groupDetails = new ArrayList<>();
-		try (Connection conn = dataSource.getConnection();
-				PreparedStatement pstmt = conn.prepareStatement(sql);){
-			pstmt.setInt(1,group_id);
-			ResultSet rs = pstmt.executeQuery();
-			while(rs.next()) {
-				String name = rs.getString("NAME");
-				int price = rs.getInt("PRICE");
-				groupDetails.add(
-							new MyWallet(
-										 name,
-										 price));
-			}
-			return groupDetails;
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-		return null;
-	}
 	
 	@Override
 	public List<Member> getFollowMember(int member_id) {
@@ -636,6 +614,169 @@ public class MemberDaoImp implements MemberDao {
 		}
 		return 0;
 	}
-	
+
+	@Override
+	public int updateRatingById(Member member) {
+		String sql = "UPDATE member SET rating = ? WHERE member_id = ?";
+		try (Connection conn = dataSource.getConnection(); 
+				PreparedStatement pstmt = conn.prepareStatement(sql);) {
+			pstmt.setDouble(1, member.getRating());
+			pstmt.setInt(2, member.getId());
+			return pstmt.executeUpdate();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return -1;
+	}
+
+	@Override
+	public Admin adminLogin(Admin admin) {
+		String sql = "SELECT * from ADMIN where ACCOUNT = ? and PASSWORD = ?";
+		Admin admin2 = null;
+		try (Connection conn = dataSource.getConnection(); 
+				PreparedStatement pstmt = conn.prepareStatement(sql);){
+			pstmt.setString(1,admin.getAccount());
+			pstmt.setString(2,admin.getPassword());
+			ResultSet rs = pstmt.executeQuery();
+			while(rs.next()) {
+				admin2 = new Admin(rs.getInt(1), rs.getString(2), rs.getString(3));
+			}
+			return admin2;
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	@Override
+	public List<Member> selectAllSuspendMember() {
+		String sql = "SELECT * from Member where DELETE_TIME is not NULL";
+		List<Member> memberList = new ArrayList<Member>();
+		try (Connection conn = dataSource.getConnection(); 
+				PreparedStatement pstmt = conn.prepareStatement(sql);){
+			ResultSet rs = pstmt.executeQuery();
+			while(rs.next()) {
+				int id = rs.getInt("MEMBER_ID");
+				String uUid = rs.getString("UUID");
+				String email = rs.getString("Email");
+				int followCount = getMyFollowCountById(id);
+				double rating = rs.getDouble("RATING");
+				String password = rs.getString("PASSWORD");
+				String nickname = rs.getString("NICKNAME") != null ? rs.getString("NICKNAME") : "";
+				String phoneNumber = rs.getString("PHONE") != null ? rs.getString("PHONE") : "";
+				Timestamp loginTime = rs.getTimestamp("LOGIN_TIME");
+				Timestamp updateTime = rs.getTimestamp("UPDATE_TIME");
+				Timestamp startTime = rs.getTimestamp("START_TIME");
+				Timestamp logoutTime = rs.getTimestamp("LOGOUT_TIME");
+				Timestamp deleteTime = rs.getTimestamp("DELETE_TIME");
+				String FCM_token = rs.getString("FCM_TOKEN");
+				
+				
+				memberList.add(new Member(id,
+								 	    followCount,
+								 	    rating,
+								 	    uUid,
+								 	    email,
+								 	    password,
+								 	    nickname,
+								 	    phoneNumber,
+								 	    startTime,
+								 	    updateTime,
+								 	    logoutTime,
+								 	    loginTime,
+								 	    deleteTime,
+								 	    FCM_token));
+			}
+			return memberList;
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return null;
+	}
+
+	@Override
+	public void removeSuspend(int member_id) {
+		String sql = "update MEMBER set DELETE_TIME = ? where MEMBER_ID = ?";
+		try (Connection conn = dataSource.getConnection(); 
+				PreparedStatement pstmt = conn.prepareStatement(sql);){
+			pstmt.setTimestamp(1, null);
+			pstmt.setInt(2, member_id);
+			int affect_row = pstmt.executeUpdate();
+			System.out.println("affect_row: " + affect_row);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	@Override
+	public int resetPhoneNumberRequest(Member member) {
+		String sql = "insert into RESET_PHONE (MEMBER_ID,NICKNAME,EMAIL) values (?,?,?)";
+		try (Connection conn = dataSource.getConnection(); 
+				PreparedStatement pstmt = conn.prepareStatement(sql);){
+			pstmt.setInt(1, member.getId());
+			pstmt.setString(2,member.getNickname());
+			String email = member.getEmail() != null ? member.getEmail() : "";
+			pstmt.setString(3,email);
+			pstmt.executeUpdate();
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return -1;
+		}
+		return -2;
+	}
+
+	@Override
+	public List<ResetPhone> findAllbyId() {
+		String sql = "select * from reset_phone";
+		List<ResetPhone> list = new ArrayList<ResetPhone>();
+		try (Connection conn = dataSource.getConnection(); 
+				PreparedStatement pstmt = conn.prepareStatement(sql);){
+			
+			ResultSet rs = pstmt.executeQuery();
+			
+			while(rs.next()) {
+				int id = rs.getInt("RESET_ID");
+                int member_id = rs.getInt("MEMBER_ID");
+                String nickname = rs.getString("NICKNAME");
+                String email = rs.getString("Email") != null ? rs.getString("Email") : "" ;
+                Timestamp start_time = rs.getTimestamp("START_TIME");
+                ResetPhone resetPhone = new ResetPhone(id, member_id, nickname, email, start_time);
+                list.add(resetPhone);
+			}
+			return list;
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	@Override
+	public int resetPhoneNumber(int id) {
+		String sql =  "update MEMBER set PHONE = ? where MEMBER_ID = ?";
+		int affect_row = 0;
+		try (Connection conn = dataSource.getConnection(); 
+				PreparedStatement pstmt = conn.prepareStatement(sql);){
+			pstmt.setString(1,"");
+			pstmt.setInt(2,id);
+			affect_row = pstmt.executeUpdate();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		String sql2 = "delete from RESET_PHONE where MEMBER_ID = ?";
+		try (Connection conn = dataSource.getConnection(); 
+				PreparedStatement pstmt = conn.prepareStatement(sql2);){
+			pstmt.setInt(1,id);
+			pstmt.executeUpdate();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return affect_row;
+	}
 
 }

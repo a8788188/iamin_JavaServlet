@@ -17,16 +17,26 @@ import javax.servlet.http.HttpServletResponse;
 import com.dao.MemberDao;
 import com.dao.MemberOrderDao;
 import com.dao.MemberOrderDetailsDao;
+import com.dao.ReportDao;
 import com.dao.implemen.MemberDaoImp;
 import com.dao.implemen.MemberOrderDaoImp;
 import com.dao.implemen.MemberOrderDetailsDaoImp;
+import com.dao.implemen.ReportDaoImp;
+import com.data.MyIncome;
 import com.data.MyWallet;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
+
+import io.grpc.netty.shaded.io.netty.channel.MaxMessagesRecvByteBufAllocator;
+
+import com.model.GroupAction;
+import com.bean.Admin;
+import com.bean.Group;
 import com.bean.Member;
 import com.bean.MemberOrder;
 import com.bean.MemberOrderDetails;
+import com.bean.ResetPhone;
 
 @WebServlet("/memberController")
 public class MemberController extends HttpServlet {
@@ -37,13 +47,18 @@ public class MemberController extends HttpServlet {
 	private MemberOrderDetailsDao memberOrderDetailsDao = null;
 	private byte[] image = null;
 	private Member member,otherMember;
+	private ResetPhone resetPhone;
+	private Admin admin;
 	private MemberOrderDetails memberOrderDetails;
 	private String jsonMember,otherMemberJson;
 	private List<MemberOrderDetails> memberOrderDetailsList;
 	private List<MemberOrder> memberOrderList;
+	private List<ResetPhone> resetPhones;
 	private List<Member> memberList;
 	private boolean respond;
 	private int count;
+	// 
+	GroupAction groupAction = new GroupAction();
 
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
@@ -56,6 +71,7 @@ public class MemberController extends HttpServlet {
 		
 		memberOrderList = new ArrayList<MemberOrder>();
 		memberList= new ArrayList<Member>();
+		resetPhones = new ArrayList<ResetPhone>();
 		memberOrderDetails = null;
 		member = null;
 		otherMember = null;
@@ -73,10 +89,15 @@ public class MemberController extends HttpServlet {
 		
 		System.out.println("input: " + jsonIn);
 		JsonObject jsonObject = gson.fromJson(jsonIn.toString(), JsonObject.class);
-
 		String action = jsonObject.get("action").getAsString();
-		jsonMember = jsonObject.get("member").getAsString();
-		member = gson.fromJson(jsonMember, Member.class);
+		
+		if(action.equals("adminLogin")) {
+			jsonMember = jsonObject.get("member").getAsString();
+			admin = gson.fromJson(jsonMember, Admin.class);
+		}else{
+			jsonMember = jsonObject.get("member").getAsString();
+			member = gson.fromJson(jsonMember, Member.class);
+		}
 		System.out.println("action---: " + action);
 		switch (action) {
 			//登入
@@ -136,7 +157,24 @@ public class MemberController extends HttpServlet {
 			if (image != null) {
 				response.setContentType("image/*");
 				response.setContentLength(image.length);
-				os.write(image);}
+				os.write(image);
+				}
+			os.close();
+			break;
+			
+		case "getIosimage":
+			os = response.getOutputStream();
+			String iosMemberjson = jsonObject.get("member").getAsString();
+			Member iosMember = gson.fromJson(iosMemberjson, Member.class);
+			System.out.println(iosMember.getId() + iosMember.getNickname());
+			byte[] member_image = null;
+			member_image = memberDao.getImage(iosMember.getId());
+			if (member_image != null) {
+				response.setContentType("image/*");
+				response.setContentLength(member_image.length);
+				os.write(member_image);
+			}
+			os.close();
 			break;
 			
 			//追隨或取消追隨
@@ -155,6 +193,11 @@ public class MemberController extends HttpServlet {
 		case "getMyWallet":
 			List<MyWallet> myWalletList = memberDao.getMyWallet(member.getId());
 			writeRespond(response, gson.toJson(myWalletList));
+			break;
+		
+		case "getMyIncome":
+			List<MyIncome> myIncomes = memberDao.getMyIncome(member.getId());
+			writeRespond(response, gson.toJson(myIncomes));
 			break;
 		
 		case "updateTokenbyUid":
@@ -194,6 +237,52 @@ public class MemberController extends HttpServlet {
 			writeRespond(response, String.valueOf(count2));
 			break;
 			
+		case "delete":
+		    // 1
+			count = memberDao.delete(member.getId());
+			// 2
+			ReportDao reportDao = new ReportDaoImp();
+			reportDao.deleteByreportid(jsonObject.get("reportid").getAsInt());
+			// 3. 刪除相關的團購和商品
+			List<Group> groups = new ArrayList<>();
+			groups = groupAction.getAllByMemberId(member.getId());
+			for (Group group : groups) {
+			    groupAction.deleteById(group.getGroupId(), null);
+			}
+			//
+			writeRespond(response, gson.toJson(count));
+			break;
+			
+		case "adminLogin":
+			admin = memberDao.adminLogin(admin);
+			writeRespond(response, gson.toJson(admin));
+			break;
+			
+		case "selectAllSuspendMember":
+			memberList = memberDao.selectAllSuspendMember();
+			writeRespond(response, gson.toJson(memberList));
+			break;
+			
+		case "RemoveSuspend":
+			memberDao.removeSuspend(member.getId());
+			break;
+			
+		case "ResetPhoneNumberRequest":
+			count = memberDao.resetPhoneNumberRequest(member);
+			writeRespond(response, String.valueOf(count));
+			break;
+		//拿取ResetPhoneInfo
+		case "getResetMemberInfo":
+			resetPhones = memberDao.findAllbyId();
+			writeRespond(response, gson.toJson(resetPhones));
+			break;
+			
+		case "resetPhoneNumber":
+			jsonMember = jsonObject.get("resetPhone").getAsString();
+			resetPhone = gson.fromJson(jsonMember, ResetPhone.class);
+			count = memberDao.resetPhoneNumber(resetPhone.getMember_id());
+			writeRespond(response, String.valueOf(count));
+			break;
 		default:
 			break;
 		}

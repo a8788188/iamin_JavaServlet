@@ -17,6 +17,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
 import com.bean.Group;
+import com.bean.GroupBlockade;
 import com.bean.GroupCategory;
 import com.bean.Merch;
 import com.model.GroupAction;
@@ -39,8 +40,11 @@ public class GroupController extends HttpServlet {
         Group group;
         List<Double[]> LatLngs;
         int id;
+        int memberId;
         String merchsIdJson;
         List<Integer> merchsId;
+        List<Group> groups;
+        List<GroupBlockade> groupBlockades;
         // 回傳結果
         int count = 0;
         
@@ -62,9 +66,13 @@ public class GroupController extends HttpServlet {
         groupAction.updateGroupStatus();
         
         switch (action) {
+        case "getAll":
+            groups = groupAction.getAll();
+            writeText(response, gson.toJson(groups));
+            break;
         case "getAllByMemberId":
             // member ID
-            List<Group> groups = groupAction.getAllByMemberId(jsonObject.get("memberId").getAsInt());
+            groups = groupAction.getAllByMemberId(jsonObject.get("memberId").getAsInt());
             writeText(response, gson.toJson(groups));
             break;
         case "getAllCategory":
@@ -75,7 +83,7 @@ public class GroupController extends HttpServlet {
             // 團購資料
             groupJson = jsonObject.get("group").getAsString();
             System.out.println("groupJson_group = " + groupJson);
-            group = gson.fromJson(groupJson, Group.class);
+            group = new GsonBuilder().setDateFormat("MMM d, yyyy h:mm:ss").create().fromJson(groupJson, Group.class);
             // 地圖資料
             groupJson = jsonObject.get("LatLngs").getAsString();
             System.out.println("groupJson_LatLngs = " + groupJson);
@@ -89,13 +97,35 @@ public class GroupController extends HttpServlet {
             // 團購ID
             id = jsonObject.get("id").getAsInt();
             // 商品清單ID
-            merchsIdJson = jsonObject.get("merchsId").getAsString();
+            if (jsonObject.get("merchsId").getAsString() == "null") {
+                merchsIdJson = null;
+            }else {
+                merchsIdJson = jsonObject.get("merchsId").getAsString();
+            }
             System.out.println("merchsId = " + merchsIdJson);
             listType = new TypeToken<List<Integer>>() {}.getType();
             merchsId = gson.fromJson(merchsIdJson, listType);
             // DB
             count = groupAction.deleteById(id, merchsId);
             writeText(response, String.valueOf(count));
+            break;
+        case "blockadeById":
+            // 封鎖原因
+            String reason = jsonObject.get("reason").getAsString();
+            String name = jsonObject.get("name").getAsString();
+            memberId = jsonObject.get("memberId").getAsInt();
+            // 團購ID
+            id = jsonObject.get("id").getAsInt();
+            // DB
+            groupAction.insertBlockade(id, memberId, name, reason);
+            count = groupAction.deleteById(id, null);
+            writeText(response, String.valueOf(count));
+            break;
+        case "checkbBlockadeByMemberId":
+            memberId = jsonObject.get("memberId").getAsInt();
+            // DB
+            groupBlockades = groupAction.selectBlockadeByMemberId(memberId);
+            writeText(response, gson.toJson(groupBlockades));
             break;
         default:
             break;

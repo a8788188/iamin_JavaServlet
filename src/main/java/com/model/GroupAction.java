@@ -5,14 +5,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.bean.Group;
+import com.bean.GroupBlockade;
 import com.bean.GroupCategory;
 import com.bean.Location;
 import com.bean.Merch;
+import com.dao.GroupBlockadeDao;
 import com.dao.GroupCategoryDao;
 import com.dao.GroupDao;
 import com.dao.GroupListDao;
 import com.dao.LocationDao;
 import com.dao.MerchDao;
+import com.dao.implemen.GroupBlockadeDaoImp;
 import com.dao.implemen.GroupCategoryDaoImp;
 import com.dao.implemen.GroupDaoImp;
 import com.dao.implemen.GroupListDaoImp;
@@ -25,7 +28,12 @@ public class GroupAction {
     private GroupCategoryDao categoryDao = new GroupCategoryDaoImp();
     private LocationDao locationDao = new LocationDaoImp();
     private GroupListDao groupListDao = new GroupListDaoImp();
+    private GroupBlockadeDao groupBlockadeDao = new GroupBlockadeDaoImp();
 
+    public List<Group> getAll() {
+        return groupDao.selectAll();
+    }
+    
     /**
      * 使用會員ID抓取目前此會員開團購的清單
      * @param memberId
@@ -76,6 +84,10 @@ public class GroupAction {
     }
     
     public int deleteById(int id, List<Integer> merchsId) {
+        if (merchsId == null) {
+            // 從 group_list 抓取 Merchs ID
+            merchsId = groupListDao.selectMerchIdByGroupId(id);
+        }
         int result;
         // 刪除團購
         result = groupDao.delete(id);
@@ -93,5 +105,27 @@ public class GroupAction {
 
     public int updateGroupStatus() {
         return groupDao.updateGroupStatus();
+    }
+
+    /**
+     * 新增一筆封鎖團購資料
+     */
+    public int insertBlockade(int id, int memberId, String name, String reason) {
+        GroupBlockade groupBlockade = new GroupBlockade(0, id, memberId, name, reason, false);
+        return groupBlockadeDao.insert(groupBlockade);
+    }
+
+    /**
+     * 找到此賣家有被管理員封鎖的group
+     */
+    public List<GroupBlockade> selectBlockadeByMemberId(int memberId) {
+        List<GroupBlockade> groupBlockades;
+        groupBlockades = groupBlockadeDao.selectAllByMembreId(memberId);
+        // 直接更新已通知欄位
+        for (GroupBlockade groupBlockade : groupBlockades) {
+            groupBlockadeDao.update(groupBlockade);
+        }
+        
+        return groupBlockades;
     }
 }
