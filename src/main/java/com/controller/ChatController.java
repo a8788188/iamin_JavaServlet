@@ -42,7 +42,7 @@ public class ChatController extends HttpServlet {
 		}
 		String action = jsonObject.get("action").getAsString();
 		if (action.equals("getAllSeller")) {
-			System.out.println("Chat input: " + jsonIn);
+//			System.out.println("Chat input: " + jsonIn);
 			List<Member> members = chatDao.selectAllSeller();
 			writeText(resp, gson.toJson(members));
 		} else if (action.equals("getImage")) {
