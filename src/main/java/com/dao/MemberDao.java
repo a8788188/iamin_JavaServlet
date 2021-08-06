@@ -4,17 +4,22 @@ import java.util.List;
 
 import com.bean.Admin;
 import com.bean.Member;
+import com.bean.ResetPhone;
 import com.data.MyIncome;
 import com.data.MyWallet;
 
 public interface MemberDao {
-	
+	//登入
 	Member login(Member member);
-	
+	//註冊
 	Member insert(Member member);
-	
+	//選擇全部被停權
+	List<Member> selectAllSuspendMember();
+	//從電話table提取
+	List<ResetPhone> findAllbyId();
+	//更新
 	int update(Member member,byte[] image);
-	
+	//更新FCM_TOKEN
 	int updateTokenbyUid(String uId, String FCM_token);
 	
 	int delete(int member_id);
@@ -37,6 +42,12 @@ public interface MemberDao {
 	
 	Admin adminLogin(Admin admin);
 	
+	void removeSuspend(int member_id);
+	
+	int resetPhoneNumberRequest(Member member);
+	
+	int resetPhoneNumber(int id);
+		
 	//取得我的支出
 	List<MyWallet> getMyWallet(int member_id);
 	//取得我的收入

@@ -10,9 +10,12 @@ import java.util.List;
 
 import javax.sql.DataSource;
 
+import org.apache.commons.lang3.concurrent.AtomicSafeInitializer;
+
 import com.bean.Admin;
 import com.bean.Group;
 import com.bean.Member;
+import com.bean.ResetPhone;
 import com.dao.MemberDao;
 import com.dao.common.ServiceLocator;
 import com.data.MyIncome;
@@ -297,7 +300,9 @@ public class MemberDaoImp implements MemberDao {
 				"on " + 
 				"	gc.GROUP_CATEGORY_ID = g.GROUP_CATEGORY_ID " + 
 				"where " + 
-				"	mo.member_id = ?";
+				"	mo.member_id = ?" +
+				"and" +
+				"	mo.receive_payment_status = 1"	;
 
 		List<MyWallet> myWalletList = new ArrayList<>();
 		try (Connection connection = dataSource.getConnection();
@@ -349,7 +354,10 @@ public class MemberDaoImp implements MemberDao {
 				"ON " + 
 				"	g.GROUP_CATEGORY_ID = gc.GROUP_CATEGORY_ID " + 
 				"where " + 
-				"	g.MEMBER_ID = ?";
+				"	g.MEMBER_ID = ?" +
+				"and"+
+				"	mo.RECEIVE_PAYMENT_STATUS = 1";
+				
 		List<MyIncome> myIncomes = new ArrayList<>();
 		try (Connection connection = dataSource.getConnection();
 				PreparedStatement pstmt = connection.prepareStatement(sql);){
@@ -638,6 +646,137 @@ public class MemberDaoImp implements MemberDao {
 			e.printStackTrace();
 		}
 		return null;
+	}
+
+	@Override
+	public List<Member> selectAllSuspendMember() {
+		String sql = "SELECT * from Member where DELETE_TIME is not NULL";
+		List<Member> memberList = new ArrayList<Member>();
+		try (Connection conn = dataSource.getConnection(); 
+				PreparedStatement pstmt = conn.prepareStatement(sql);){
+			ResultSet rs = pstmt.executeQuery();
+			while(rs.next()) {
+				int id = rs.getInt("MEMBER_ID");
+				String uUid = rs.getString("UUID");
+				String email = rs.getString("Email");
+				int followCount = getMyFollowCountById(id);
+				double rating = rs.getDouble("RATING");
+				String password = rs.getString("PASSWORD");
+				String nickname = rs.getString("NICKNAME") != null ? rs.getString("NICKNAME") : "";
+				String phoneNumber = rs.getString("PHONE") != null ? rs.getString("PHONE") : "";
+				Timestamp loginTime = rs.getTimestamp("LOGIN_TIME");
+				Timestamp updateTime = rs.getTimestamp("UPDATE_TIME");
+				Timestamp startTime = rs.getTimestamp("START_TIME");
+				Timestamp logoutTime = rs.getTimestamp("LOGOUT_TIME");
+				Timestamp deleteTime = rs.getTimestamp("DELETE_TIME");
+				String FCM_token = rs.getString("FCM_TOKEN");
+				
+				
+				memberList.add(new Member(id,
+								 	    followCount,
+								 	    rating,
+								 	    uUid,
+								 	    email,
+								 	    password,
+								 	    nickname,
+								 	    phoneNumber,
+								 	    startTime,
+								 	    updateTime,
+								 	    logoutTime,
+								 	    loginTime,
+								 	    deleteTime,
+								 	    FCM_token));
+			}
+			return memberList;
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return null;
+	}
+
+	@Override
+	public void removeSuspend(int member_id) {
+		String sql = "update MEMBER set DELETE_TIME = ? where MEMBER_ID = ?";
+		try (Connection conn = dataSource.getConnection(); 
+				PreparedStatement pstmt = conn.prepareStatement(sql);){
+			pstmt.setTimestamp(1, null);
+			pstmt.setInt(2, member_id);
+			int affect_row = pstmt.executeUpdate();
+			System.out.println("affect_row: " + affect_row);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	@Override
+	public int resetPhoneNumberRequest(Member member) {
+		String sql = "insert into RESET_PHONE (MEMBER_ID,NICKNAME,EMAIL) values (?,?,?)";
+		try (Connection conn = dataSource.getConnection(); 
+				PreparedStatement pstmt = conn.prepareStatement(sql);){
+			pstmt.setInt(1, member.getId());
+			pstmt.setString(2,member.getNickname());
+			String email = member.getEmail() != null ? member.getEmail() : "";
+			pstmt.setString(3,email);
+			pstmt.executeUpdate();
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return -1;
+		}
+		return -2;
+	}
+
+	@Override
+	public List<ResetPhone> findAllbyId() {
+		String sql = "select * from reset_phone";
+		List<ResetPhone> list = new ArrayList<ResetPhone>();
+		try (Connection conn = dataSource.getConnection(); 
+				PreparedStatement pstmt = conn.prepareStatement(sql);){
+			
+			ResultSet rs = pstmt.executeQuery();
+			
+			while(rs.next()) {
+				int id = rs.getInt("RESET_ID");
+                int member_id = rs.getInt("MEMBER_ID");
+                String nickname = rs.getString("NICKNAME");
+                String email = rs.getString("Email") != null ? rs.getString("Email") : "" ;
+                Timestamp start_time = rs.getTimestamp("START_TIME");
+                ResetPhone resetPhone = new ResetPhone(id, member_id, nickname, email, start_time);
+                list.add(resetPhone);
+			}
+			return list;
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	@Override
+	public int resetPhoneNumber(int id) {
+		String sql =  "update MEMBER set PHONE = ? where MEMBER_ID = ?";
+		int affect_row = 0;
+		try (Connection conn = dataSource.getConnection(); 
+				PreparedStatement pstmt = conn.prepareStatement(sql);){
+			pstmt.setString(1,"");
+			pstmt.setInt(2,id);
+			affect_row = pstmt.executeUpdate();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		String sql2 = "delete from RESET_PHONE where MEMBER_ID = ?";
+		try (Connection conn = dataSource.getConnection(); 
+				PreparedStatement pstmt = conn.prepareStatement(sql2);){
+			pstmt.setInt(1,id);
+			pstmt.executeUpdate();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return affect_row;
 	}
 
 }
