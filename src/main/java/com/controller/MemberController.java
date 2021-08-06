@@ -17,9 +17,11 @@ import javax.servlet.http.HttpServletResponse;
 import com.dao.MemberDao;
 import com.dao.MemberOrderDao;
 import com.dao.MemberOrderDetailsDao;
+import com.dao.ReportDao;
 import com.dao.implemen.MemberDaoImp;
 import com.dao.implemen.MemberOrderDaoImp;
 import com.dao.implemen.MemberOrderDetailsDaoImp;
+import com.dao.implemen.ReportDaoImp;
 import com.data.MyIncome;
 import com.data.MyWallet;
 import com.google.gson.Gson;
@@ -28,7 +30,9 @@ import com.google.gson.JsonObject;
 
 import io.grpc.netty.shaded.io.netty.channel.MaxMessagesRecvByteBufAllocator;
 
+import com.model.GroupAction;
 import com.bean.Admin;
+import com.bean.Group;
 import com.bean.Member;
 import com.bean.MemberOrder;
 import com.bean.MemberOrderDetails;
@@ -53,6 +57,8 @@ public class MemberController extends HttpServlet {
 	private List<Member> memberList;
 	private boolean respond;
 	private int count;
+	// 
+	GroupAction groupAction = new GroupAction();
 
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
@@ -212,6 +218,22 @@ public class MemberController extends HttpServlet {
 			int seller_id_chack = jsonObject.get("follwer_id").getAsInt();
 			int count2 = memberDao.chackfollow(buyer_id_chack, seller_id_chack);
 			writeRespond(response, String.valueOf(count2));
+			break;
+			
+		case "delete":
+		    // 1
+			count = memberDao.delete(member.getId());
+			// 2
+			ReportDao reportDao = new ReportDaoImp();
+			reportDao.deleteByreportid(jsonObject.get("reportid").getAsInt());
+			// 3. 刪除相關的團購和商品
+			List<Group> groups = new ArrayList<>();
+			groups = groupAction.getAllByMemberId(member.getId());
+			for (Group group : groups) {
+			    groupAction.deleteById(group.getGroupId(), null);
+			}
+			//
+			writeRespond(response, gson.toJson(count));
 			break;
 			
 		case "adminLogin":

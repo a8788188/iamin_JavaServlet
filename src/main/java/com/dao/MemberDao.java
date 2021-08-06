@@ -3,7 +3,6 @@ package com.dao;
 import java.util.List;
 
 import com.bean.Admin;
-import com.bean.Group;
 import com.bean.Member;
 import com.bean.ResetPhone;
 import com.data.MyIncome;
@@ -22,11 +21,11 @@ public interface MemberDao {
 	int update(Member member,byte[] image);
 	//更新FCM_TOKEN
 	int updateTokenbyUid(String uId, String FCM_token);
-	//更新評價
+	
+	int delete(int member_id);
+
 	int updateRatingById(Member member);
-	//刪除（空）
-	void delete(int member_id);
-	//更新時間
+	
 	boolean timeUpdate(int member_id,String column);
 	
 	byte[] getImage(int member_id);
