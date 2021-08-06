@@ -5,6 +5,7 @@ import java.util.List;
 import com.bean.Admin;
 import com.bean.Group;
 import com.bean.Member;
+import com.bean.ResetPhone;
 import com.data.MyIncome;
 import com.data.MyWallet;
 
@@ -15,6 +16,8 @@ public interface MemberDao {
 	Member insert(Member member);
 	//選擇全部被停權
 	List<Member> selectAllSuspendMember();
+	//從電話table提取
+	List<ResetPhone> findAllbyId();
 	//更新
 	int update(Member member,byte[] image);
 	//更新FCM_TOKEN
@@ -42,8 +45,10 @@ public interface MemberDao {
 	
 	void removeSuspend(int member_id);
 	
-	int resetPhoneNumberRequest(int member_id);
+	int resetPhoneNumberRequest(Member member);
 	
+	int resetPhoneNumber(int id);
+		
 	//取得我的支出
 	List<MyWallet> getMyWallet(int member_id);
 	//取得我的收入

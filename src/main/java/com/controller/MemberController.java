@@ -25,10 +25,14 @@ import com.data.MyWallet;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
+
+import io.grpc.netty.shaded.io.netty.channel.MaxMessagesRecvByteBufAllocator;
+
 import com.bean.Admin;
 import com.bean.Member;
 import com.bean.MemberOrder;
 import com.bean.MemberOrderDetails;
+import com.bean.ResetPhone;
 
 @WebServlet("/memberController")
 public class MemberController extends HttpServlet {
@@ -39,11 +43,13 @@ public class MemberController extends HttpServlet {
 	private MemberOrderDetailsDao memberOrderDetailsDao = null;
 	private byte[] image = null;
 	private Member member,otherMember;
+	private ResetPhone resetPhone;
 	private Admin admin;
 	private MemberOrderDetails memberOrderDetails;
 	private String jsonMember,otherMemberJson;
 	private List<MemberOrderDetails> memberOrderDetailsList;
 	private List<MemberOrder> memberOrderList;
+	private List<ResetPhone> resetPhones;
 	private List<Member> memberList;
 	private boolean respond;
 	private int count;
@@ -59,6 +65,7 @@ public class MemberController extends HttpServlet {
 		
 		memberOrderList = new ArrayList<MemberOrder>();
 		memberList= new ArrayList<Member>();
+		resetPhones = new ArrayList<ResetPhone>();
 		memberOrderDetails = null;
 		member = null;
 		otherMember = null;
@@ -222,10 +229,21 @@ public class MemberController extends HttpServlet {
 			break;
 			
 		case "ResetPhoneNumberRequest":
-			count = memberDao.resetPhoneNumberRequest(member.getId());
+			count = memberDao.resetPhoneNumberRequest(member);
 			writeRespond(response, String.valueOf(count));
 			break;
+		//拿取ResetPhoneInfo
+		case "getResetMemberInfo":
+			resetPhones = memberDao.findAllbyId();
+			writeRespond(response, gson.toJson(resetPhones));
+			break;
 			
+		case "resetPhoneNumber":
+			jsonMember = jsonObject.get("resetPhone").getAsString();
+			resetPhone = gson.fromJson(jsonMember, ResetPhone.class);
+			count = memberDao.resetPhoneNumber(resetPhone.getMember_id());
+			writeRespond(response, String.valueOf(count));
+			break;
 		default:
 			break;
 		}
