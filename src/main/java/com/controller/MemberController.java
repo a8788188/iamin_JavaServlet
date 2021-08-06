@@ -154,7 +154,24 @@ public class MemberController extends HttpServlet {
 			if (image != null) {
 				response.setContentType("image/*");
 				response.setContentLength(image.length);
-				os.write(image);}
+				os.write(image);
+				}
+			os.close();
+			break;
+			
+		case "getIosimage":
+			os = response.getOutputStream();
+			String iosMemberjson = jsonObject.get("member").getAsString();
+			Member iosMember = gson.fromJson(iosMemberjson, Member.class);
+			System.out.println(iosMember.getId() + iosMember.getNickname());
+			byte[] member_image = null;
+			member_image = memberDao.getImage(iosMember.getId());
+			if (member_image != null) {
+				response.setContentType("image/*");
+				response.setContentLength(member_image.length);
+				os.write(member_image);
+			}
+			os.close();
 			break;
 			
 			//追隨或取消追隨

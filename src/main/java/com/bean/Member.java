@@ -22,7 +22,14 @@ public class Member implements Serializable {
     private Timestamp loginTime;
     private Timestamp deleteTime;
     private String FCM_token;
-
+    
+    public Member(String FCM_token, String uuid, String nickname, int id) {
+    	this.id = id;
+    	this.nickname = nickname;
+    	this.uUId = uuid;
+    	this.FCM_token = FCM_token;
+    }
+    
     public Member(int id, String uUid){
         this.id = id;
         this.uUId = uUid;
