@@ -452,7 +452,7 @@ public class MemberDaoImp implements MemberDao {
 
 	@Override
 	public int updateTokenbyUid(String uId,String FCM_token) {
-		final String sql = "update MEMBER set FCM_TOKEN = ? where UUID = ? of UUID2 = ?";
+		final String sql = "update MEMBER set FCM_TOKEN = ? where UUID = ? or UUID2 = ?";
 		try (Connection conn = dataSource.getConnection();
 				PreparedStatement pstmt = conn.prepareStatement(sql);) {
 			pstmt.setString(1, FCM_token);

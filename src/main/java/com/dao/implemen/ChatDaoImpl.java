@@ -24,7 +24,7 @@ public class ChatDaoImpl implements ChatDao {
 
 	@Override
 	public List<Member> selectAllSeller() {
-		final String sql = "SELECT MEMBER_ID, NICKNAME, UUID, FCM_TOKEN FROM plus_one.member where PHONE is not null;";
+		final String sql = "SELECT MEMBER_ID, NICKNAME, UUID, FCM_TOKEN FROM plus_one.member where UUID2 is not null;";
 		List<Member> list = new ArrayList<Member>();
 		try (
 				Connection conn = dataSource.getConnection();
