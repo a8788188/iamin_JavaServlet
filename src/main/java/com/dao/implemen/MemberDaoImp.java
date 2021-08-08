@@ -404,20 +404,13 @@ public class MemberDaoImp implements MemberDao {
 
 	@Override
 	public Member findbyUuid(Member memberWithUid) {
-		String sql = "";
-		String UID = "";
-		if(memberWithUid.getuUId2() != null) {
-			sql = "select * from Member where UUID2 = ?";
-			UID = memberWithUid.getuUId2();
-		}else {
-			sql = "select * from Member where UUID = ?";
-			UID = memberWithUid.getuUId();
-		}
+		String sql = "select * from Member where UUID = ? or UUID2 = ? ";
 		
 		Member member = null;
 		try (Connection conn = dataSource.getConnection();
 				PreparedStatement pstmt = conn.prepareStatement(sql);) {
-			pstmt.setString(1, UID);
+			pstmt.setString(1, memberWithUid.getuUId());
+			pstmt.setString(2, memberWithUid.getuUId());
 			ResultSet rs = pstmt.executeQuery();
 					if (rs.next()) {
 						int id = rs.getInt("MEMBER_ID");
@@ -459,11 +452,12 @@ public class MemberDaoImp implements MemberDao {
 
 	@Override
 	public int updateTokenbyUid(String uId,String FCM_token) {
-		final String sql = "update MEMBER set FCM_TOKEN = ? where UUID = ?";
+		final String sql = "update MEMBER set FCM_TOKEN = ? where UUID = ? of UUID2 = ?";
 		try (Connection conn = dataSource.getConnection();
 				PreparedStatement pstmt = conn.prepareStatement(sql);) {
 			pstmt.setString(1, FCM_token);
 			pstmt.setString(2,uId);
+			pstmt.setString(3,uId);
 			
 			return pstmt.executeUpdate();
 			
