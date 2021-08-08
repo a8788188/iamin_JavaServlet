@@ -790,11 +790,11 @@ public class MemberDaoImp implements MemberDao {
 
 	@Override
 	public int phoneAuth(Member member) {
-		String sql = "update MEMBER set PHONE = ?,UUID = ? where MEMBER_ID = ? ";
+		String sql = "update MEMBER set PHONE = ?,UUID2 = ? where MEMBER_ID = ? ";
 		try (Connection conn = dataSource.getConnection(); 
 				PreparedStatement pstmt = conn.prepareStatement(sql);){
 			pstmt.setString(1,member.getPhoneNumber());
-			pstmt.setString(2,member.getuUId());
+			pstmt.setString(2,member.getuUId2());
 			pstmt.setInt(3,member.getId());
 			return pstmt.executeUpdate();
 		} catch (SQLException e) {
