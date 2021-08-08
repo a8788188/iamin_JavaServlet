@@ -124,4 +124,34 @@ public class RatingDaoImp implements RatingDao {
 		return null;
 	}
 
+
+	@Override
+	public Rating checkIsRated(int memberOrderId) {
+		String sql = "select * from rating where member_order_id = ?";
+		Rating rating = null;
+		try (
+                Connection connection = dataSource.getConnection();
+                PreparedStatement ps = connection.prepareStatement(sql);
+        ){
+				ps.setInt(1,memberOrderId);
+				ResultSet rs = ps.executeQuery();
+				while(rs.next()) {
+					
+					rating = new Rating(rs.getInt(1), 
+							rs.getInt(2),
+							rs.getInt(3), 
+							rs.getInt(4), 
+							rs.getString(5), 
+							rs.getTimestamp(6),
+							rs.getString(7));
+					
+				}
+				return rating;
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
+	}
+
 }

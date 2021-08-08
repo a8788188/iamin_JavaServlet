@@ -300,8 +300,8 @@ public class MemberDaoImp implements MemberDao {
 				"on " + 
 				"	gc.GROUP_CATEGORY_ID = g.GROUP_CATEGORY_ID " + 
 				"where " + 
-				"	mo.member_id = ?" +
-				"and" +
+				"	mo.member_id = ? " +
+				"and " +
 				"	mo.receive_payment_status = 1"	;
 
 		List<MyWallet> myWalletList = new ArrayList<>();
@@ -354,8 +354,8 @@ public class MemberDaoImp implements MemberDao {
 				"ON " + 
 				"	g.GROUP_CATEGORY_ID = gc.GROUP_CATEGORY_ID " + 
 				"where " + 
-				"	g.MEMBER_ID = ?" +
-				"and"+
+				"	g.MEMBER_ID = ? " +
+				"and " +
 				"	mo.RECEIVE_PAYMENT_STATUS = 1";
 				
 		List<MyIncome> myIncomes = new ArrayList<>();
@@ -403,12 +403,21 @@ public class MemberDaoImp implements MemberDao {
 	}
 
 	@Override
-	public Member findbyUuid(String uUid) {
-		final String sql = "select * from Member where UUID = ?";
+	public Member findbyUuid(Member memberWithUid) {
+		String sql = "";
+		String UID = "";
+		if(memberWithUid.getuUId2() != null) {
+			sql = "select * from Member where UUID2 = ?";
+			UID = memberWithUid.getuUId2();
+		}else {
+			sql = "select * from Member where UUID = ?";
+			UID = memberWithUid.getuUId();
+		}
+		
 		Member member = null;
 		try (Connection conn = dataSource.getConnection();
 				PreparedStatement pstmt = conn.prepareStatement(sql);) {
-			pstmt.setString(1, uUid);
+			pstmt.setString(1, UID);
 			ResultSet rs = pstmt.executeQuery();
 					if (rs.next()) {
 						int id = rs.getInt("MEMBER_ID");
@@ -777,6 +786,22 @@ public class MemberDaoImp implements MemberDao {
 			e.printStackTrace();
 		}
 		return affect_row;
+	}
+
+	@Override
+	public int phoneAuth(Member member) {
+		String sql = "update MEMBER set PHONE = ?,UUID = ? where MEMBER_ID = ? ";
+		try (Connection conn = dataSource.getConnection(); 
+				PreparedStatement pstmt = conn.prepareStatement(sql);){
+			pstmt.setString(1,member.getPhoneNumber());
+			pstmt.setString(2,member.getuUId());
+			pstmt.setInt(3,member.getId());
+			return pstmt.executeUpdate();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return 0;
 	}
 
 }

@@ -1,5 +1,6 @@
 package com.bean;
 
+import java.sql.Timestamp;
 import java.util.List;
 
 // 會員訂單
@@ -18,7 +19,9 @@ public class MemberOrder {
     private String groupName; //團購名稱
     private int groupStatus; //團購狀態
     
-    public MemberOrder(int memberOrderId, int memberId, int groupId, int payentMethod, int total,
+    
+
+	public MemberOrder(int memberOrderId, int memberId, int groupId, int payentMethod, int total,
             boolean receivePaymentStatus, boolean deliverStatus) {
         super();
         this.memberOrderId = memberOrderId;
@@ -42,6 +45,7 @@ public class MemberOrder {
         this.groupStatus = groupStatus;
         this.memberOrderDetailsList = memberOrderDetailsList;
     }
+    
 
     public MemberOrder(int memberOrderId, int memberId, int groupId, int payentMethod, int total,
             boolean receivePaymentStatus, boolean deliverStatus, String nickname, String phone) {
@@ -153,5 +157,5 @@ public class MemberOrder {
 	public void setGroupStatus(int groupStatus) {
 		this.groupStatus = groupStatus;
 	}
-	
+
 }

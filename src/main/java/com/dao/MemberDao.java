@@ -13,6 +13,8 @@ public interface MemberDao {
 	Member login(Member member);
 	//註冊
 	Member insert(Member member);
+	//電話驗證更新欄位
+	int phoneAuth(Member member);
 	//選擇全部被停權
 	List<Member> selectAllSuspendMember();
 	//從電話table提取
@@ -30,7 +32,7 @@ public interface MemberDao {
 	
 	byte[] getImage(int member_id);
 	
-	Member findbyUuid(String uUid);
+	Member findbyUuid(Member memberWithUid);
 
 	Member findById(int member_id);
 	

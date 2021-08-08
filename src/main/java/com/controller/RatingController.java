@@ -3,6 +3,7 @@ package com.controller;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.text.Format;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -70,14 +71,17 @@ public class RatingController extends HttpServlet {
 				Rating rating = gson.fromJson(ratingJson, Rating.class);
 				count = ratingDao.insert(rating);
 				//RatingDaoImp的方法 取得該seller_id的評價總分
-				int ratingsum = ratingDao.selectSumrating(rating.getSeller_Id());
+				double ratingsum = ratingDao.selectSumrating(rating.getSeller_Id());
 				//RatingDaoImp的方法 取得該seller_id的評價總數
 				int ratingcount = ratingDao.selectCountrating(rating.getSeller_Id());
 				//取得當前的seller(型態是Member,用於方便updata)
 				Member member = memberDao.findById(rating.getSeller_Id());
 				//setRating為ratingsum(賣家總分)/ratingcount(賣家總數)
-				member.setRating(ratingsum/ratingcount);
-				
+				double mRating = ratingsum/ratingcount;
+				member.setRating(Math.round(mRating*10)/10);
+//				System.out.println("ratingsum: " + ratingsum);
+//				System.out.println("ratingcount: " + ratingcount);
+//				System.out.println("mRating: " + mRating);
 				memberDao.updateRatingById(member);
 				writeText(response, String.valueOf(count));
 	        	break;
@@ -87,6 +91,13 @@ public class RatingController extends HttpServlet {
 	        	System.out.println("memberIdJson = " + memberIdJson);
 	        	ratings = ratingDao.getAllRatingByMemberId(Integer.valueOf(memberIdJson));
 	        	writeText(response, gson.toJson(ratings));
+	        	break;
+	        
+	        case "checkIsRated":
+	        	String jsonMebmer = jsonObject.get("memberOrderID").getAsString();
+	        	int memberOrderId = gson.fromJson(jsonMebmer, Integer.class);
+	        	Rating Rating2 = ratingDao.checkIsRated(memberOrderId);
+	        	writeText(response, gson.toJson(Rating2));
 	        	break;
 	        }
 	}

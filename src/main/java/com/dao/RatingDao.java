@@ -16,4 +16,6 @@ public interface RatingDao {
 	//取得賣家的評價總數
 	int selectCountrating(int seller_id);
 	
+	Rating checkIsRated(int memberOrderId);
+	
 }

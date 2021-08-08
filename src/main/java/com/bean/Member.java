@@ -22,6 +22,8 @@ public class Member implements Serializable {
     private Timestamp loginTime;
     private Timestamp deleteTime;
     private String FCM_token;
+    //
+    private String uUId2;
     
     public Member(String FCM_token, String uuid, String nickname, int id) {
     	this.id = id;
@@ -205,5 +207,12 @@ public class Member implements Serializable {
         FCM_token = fCM_token;
     }
 
+    public String getuUId2() {
+        return uUId2;
+    }
+
+    public void setuUId2(String uUId2) {
+        this.uUId2 = uUId2;
+    }
 	
 }

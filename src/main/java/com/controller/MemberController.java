@@ -99,7 +99,7 @@ public class MemberController extends HttpServlet {
 		switch (action) {
 			//登入
 		case "login":
-			member = memberDao.findbyUuid(member.getuUId());
+			member = memberDao.findbyUuid(member);
 			if(member!=null) {
 			memberDao.timeUpdate(member.getId(),"LOGIN_TIME");
 			}
@@ -141,7 +141,7 @@ public class MemberController extends HttpServlet {
 			
 			//第三方檢查用
 		case "findbyUuid":
-			member = memberDao.findbyUuid(member.getuUId());
+			member = memberDao.findbyUuid(member);
 //			count = memberDao.updateTokenbyUid(member.getuUId(),member.getFCM_token());
 			System.out.println("findbyUuid fcm update: " + count);
 			writeRespond(response, gson.toJson(member));
@@ -278,6 +278,12 @@ public class MemberController extends HttpServlet {
 			jsonMember = jsonObject.get("resetPhone").getAsString();
 			resetPhone = gson.fromJson(jsonMember, ResetPhone.class);
 			count = memberDao.resetPhoneNumber(resetPhone.getMember_id());
+			System.out.println("resetPhoneNumber: "+member.getPhoneNumber());
+			writeRespond(response, String.valueOf(count));
+			break;
+			
+		case "phoneAuthSuccess":
+			count = memberDao.phoneAuth(member);
 			writeRespond(response, String.valueOf(count));
 			break;
 		default:
