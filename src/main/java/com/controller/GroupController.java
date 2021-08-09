@@ -83,7 +83,7 @@ public class GroupController extends HttpServlet {
             // 團購資料
             groupJson = jsonObject.get("group").getAsString();
             System.out.println("groupJson_group = " + groupJson);
-            group = new GsonBuilder().setDateFormat("MMM d, yyyy h:mm:ss").create().fromJson(groupJson, Group.class);
+            group = new GsonBuilder().setDateFormat("MMM d, yyyy h:mm:ss a").create().fromJson(groupJson, Group.class);
             // 地圖資料
             groupJson = jsonObject.get("LatLngs").getAsString();
             System.out.println("groupJson_LatLngs = " + groupJson);
