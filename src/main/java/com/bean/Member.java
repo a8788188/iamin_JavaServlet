@@ -25,11 +25,12 @@ public class Member implements Serializable {
     //
     private String uUId2;
     
-    public Member(String FCM_token, String uuid, String nickname, int id) {
+    public Member(String uuid2, String FCM_token, String uuid, int id, String nickname) {
     	this.id = id;
     	this.nickname = nickname;
     	this.uUId = uuid;
     	this.FCM_token = FCM_token;
+    	this.uUId2 = uuid2;
     }
     
     public Member(int id, String uUid){

@@ -24,7 +24,7 @@ public class ChatDaoImpl implements ChatDao {
 
 	@Override
 	public List<Member> selectAllSeller() {
-		final String sql = "SELECT MEMBER_ID, NICKNAME, UUID, FCM_TOKEN FROM plus_one.member where UUID2 is not null;";
+		final String sql = "SELECT MEMBER_ID, NICKNAME, UUID, FCM_TOKEN, UUID2 FROM plus_one.member where UUID2 is not null;";
 		List<Member> list = new ArrayList<Member>();
 		try (
 				Connection conn = dataSource.getConnection();
@@ -37,7 +37,8 @@ public class ChatDaoImpl implements ChatDao {
 					String name = rs.getString(2);
 					String uuid = rs.getString(3);
 					String fcm_token = rs.getString(4);
-					Member member = new Member(fcm_token, uuid, name, id);
+					String uuid2 = rs.getString(5);
+					Member member = new Member(uuid2, fcm_token, uuid, id, name);
 					list.add(member);
 				}
 			return list;
