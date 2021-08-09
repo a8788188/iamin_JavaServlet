@@ -18,4 +18,6 @@ public interface GroupDao {
     List<Group> selectAll();
     
     List<Group> selectAllByMemberId(int memberId);
+    
+    int updateGroupStatus(int id, int GroupStatus);
 }

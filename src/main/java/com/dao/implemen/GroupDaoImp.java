@@ -173,7 +173,7 @@ public class GroupDaoImp implements GroupDao {
                 + "GROUP_ITEM, CONTACT_NUMBER, PAYMENT_METHOD, GROUP_STATUS, CAUTION, "
                 + "PRIVACY_FLAG, TOTAL_AMOUNT, AMOUNT, CONDITION_COUNT, CONDITION_TIME, c.CATEGORY "
                 + "FROM (plus_one.group g JOIN plus_one.group_category c ON g.GROUP_CATEGORY_ID = c.GROUP_CATEGORY_ID) "
-                + "WHERE MEMBER_ID = ? AND g.DELETE_TIME IS NULL "
+                + "WHERE MEMBER_ID = ? AND (g.DELETE_TIME IS NULL OR g.GROUP_STATUS = 4) "
                 + "ORDER BY g.START_TIME DESC;";
         
         List<Group> groupList = new ArrayList<>();
@@ -254,12 +254,33 @@ public class GroupDaoImp implements GroupDao {
         int count = 0;
         System.out.println("updateGroupStatus");
         String sql = "UPDATE plus_one.group SET GROUP_STATUS = 3 " +
-                     "WHERE CONDITION_TIME < NOW();";
+                     "WHERE CONDITION_TIME < NOW() AND GROUP_STATUS != 4;";
         
         try (
                 Connection connection = dataSource.getConnection();
                 PreparedStatement ps = connection.prepareStatement(sql);
         ) {
+            count = ps.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        
+        return count;
+    }
+
+    @Override
+    public int updateGroupStatus(int id, int GroupStatus) {
+        int count = 0;
+        System.out.println("updateGroupStatus");
+        String sql = "UPDATE plus_one.group SET GROUP_STATUS = ? " +
+                     "WHERE GROUP_ID = ?;";
+        
+        try (
+                Connection connection = dataSource.getConnection();
+                PreparedStatement ps = connection.prepareStatement(sql);
+        ) {
+            ps.setInt(1, GroupStatus);
+            ps.setInt(2, id);
             count = ps.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
