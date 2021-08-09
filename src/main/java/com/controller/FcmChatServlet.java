@@ -75,6 +75,12 @@ public class FcmChatServlet extends HttpServlet {
 			sendSingleFcm(jsonObject, registrationToken);
 			writeText(response, "Single FCM is sent!");
 			break;
+		case "singleBuyerFcm":
+			String sellerToken = jsonObject.get("sellerToken").getAsString();
+			sendSingleFcm(jsonObject, sellerToken);
+			System.out.println("sellerToken + " + sellerToken);
+			writeText(response, "singleBuyer FCM is sent!");
+			break;
 		default:
 			break;
 		}
