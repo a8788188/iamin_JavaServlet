@@ -112,6 +112,9 @@ public class GroupAction {
      */
     public int insertBlockade(int id, int memberId, String name, String reason) {
         GroupBlockade groupBlockade = new GroupBlockade(0, id, memberId, name, reason, false);
+        // 更新團購狀態 4
+        groupDao.updateGroupStatus(id, 4);
+        // 新增封鎖
         return groupBlockadeDao.insert(groupBlockade);
     }
 

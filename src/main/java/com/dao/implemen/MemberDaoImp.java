@@ -31,11 +31,13 @@ public class MemberDaoImp implements MemberDao {
 
 	@Override
 	public Member login(Member member) {
-		String sql = "select * from MEMBER where EMAIL = ? and PASSWORD = ?";
+//		String sql = "select * from MEMBER where EMAIL = ? and Password = ?";
+		String sql = "select * from MEMBER where UUID = ?";
 		try (Connection connection = dataSource.getConnection();
 				PreparedStatement pstmt = connection.prepareStatement(sql);) {
-			pstmt.setString(1, member.getEmail());
-			pstmt.setString(2, member.getPassword());
+			pstmt.setString(1,member.getuUId());
+//			pstmt.setString(1, member.getEmail());
+//			pstmt.setString(2, member.getPassword());
 			ResultSet rs = pstmt.executeQuery();
 			while (rs.next()) {
 				int memberId = rs.getInt("MEMBER_ID");

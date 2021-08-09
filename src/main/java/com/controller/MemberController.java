@@ -278,7 +278,6 @@ public class MemberController extends HttpServlet {
 			jsonMember = jsonObject.get("resetPhone").getAsString();
 			resetPhone = gson.fromJson(jsonMember, ResetPhone.class);
 			count = memberDao.resetPhoneNumber(resetPhone.getMember_id());
-//			System.out.println("resetPhoneNumber: "+member.getPhoneNumber());
 			writeRespond(response, String.valueOf(count));
 			break;
 			
