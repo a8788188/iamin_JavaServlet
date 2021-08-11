@@ -46,7 +46,7 @@ public class ReportDaoImp implements ReportDao {
 	public List<Integer> selectmemberidreport() {
 		List<Integer> reported_member_id = new ArrayList<Integer>();
 		String sql = "SELECT REPORTED_MEMBER_ID " + 
-					 "from report " + 
+					 "from plus_one.report " + 
 					 "where DELETE_TIME IS NULL " + 
 					 "group by REPORTED_MEMBER_ID; ";
 		try (
