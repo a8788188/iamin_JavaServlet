@@ -52,4 +52,13 @@ public class MerchAction {
     public byte[] getMerchImgByIdForIos(int id, int number) {
         return merchDao.getImage(id, number);
     }
+    
+    public byte[] getMerchImgByGroupId(int groupId, int number) {
+        // 找到第一個Merch
+        List<Integer> merchsId;
+        merchsId = groupListDao.selectMerchIdByGroupId(groupId);
+        // 抓取第一個 merch 的圖片
+        List<Merch> merchs = merchDao.selectAllByMerchsId(merchsId);
+        return getMerchImgById(merchs.get(0).getMerchId());
+    }
 }
