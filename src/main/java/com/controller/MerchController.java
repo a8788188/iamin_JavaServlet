@@ -39,6 +39,7 @@ public class MerchController extends HttpServlet {
         List<Merch> merchs;
         int id;
         final List<byte[]> imgsTemp = new ArrayList<>();
+        OutputStream os;
         // 回傳結果
         int count = 0;
         byte[] image;
@@ -112,8 +113,15 @@ public class MerchController extends HttpServlet {
             writeText(response, gson.toJson(image));
             break;
         
+        case "getFirstImageByGroupId":
+            os = response.getOutputStream();
+            int groupId = jsonObject.get("groupId").getAsInt();
+            image = merchAction.getMerchImgByGroupId(groupId, jsonObject.get("number").getAsInt());
+            os.write(image);
+            break;
+        
         case "getImageForIos":
-            OutputStream os = response.getOutputStream();
+            os = response.getOutputStream();
             id = jsonObject.get("id").getAsInt();
             image = merchAction.getMerchImgByIdForIos(id, jsonObject.get("number").getAsInt());
             os.write(image);
